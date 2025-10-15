@@ -2,7 +2,11 @@
 add_executable(cpp-test
   # list of source cpp files:
   main.cpp
-  test.cpp
+  # test.cpp
+  test_preprocessor.cpp
+  test_transformer.cpp
+  test_detector_tracker.cpp
+  test_ml_depth.cpp
   )
 
 # Any include directories needed to build this target.
@@ -17,8 +21,10 @@ target_include_directories(cpp-test PUBLIC
 target_link_libraries(cpp-test PUBLIC
   # list of libraries:
   gtest
-  myLib1
-  myLib2
+  detector_tracker
+  ml_depth_estimator
+  preprocessor
+  transformer
   )
 
 # Enable CMake’s test runner to discover the tests included in the
