@@ -1,4 +1,6 @@
 
-add_subdirectory (lib1)
-add_subdirectory (lib2)
+add_subdirectory (detector_tracker)
+add_subdirectory (ml_depth_estimator)
+add_subdirectory (transformer)
+add_subdirectory (preprocessor)
 
