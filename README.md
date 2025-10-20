@@ -20,6 +20,11 @@ This module provides real-time human detection and tracking for Acme Robotics' a
 - 3D position estimation via monocular depth networks (MiDaS/Depth Anything)
 - Direct integration with robot navigation systems
 
+
+## Project Video
+
+[Watch our 3-minute design presentation](https://youtu.be/bDlo0ityvEo)
+
 ## Deliverables
 
 - **Project**: Human(s) obstacle detector and tracker - Output in robot reference frame
@@ -53,10 +58,9 @@ This module provides real-time human detection and tracking for Acme Robotics' a
 **Agile Development Process** will be used in the development process with Test-Driven Development.
 
 ## Product Backlog
-[Initial Product Backlog](docs/product_backlog.md)
+[Initial Product Backlog](_ENPM700-AIP-Mid-term-project-Group3.xlsx)
 
-## AIP Sprint Sheet
-[Sprint Planning Documentation](docs/sprint_planning.md)
+
 
 ## Tools and Technologies Used
 
