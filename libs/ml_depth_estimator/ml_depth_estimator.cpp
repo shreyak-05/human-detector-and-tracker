@@ -2,7 +2,8 @@
 using namespace cv;
 using namespace perception;
 
-MLDepthEstimator::MLDepthEstimator(const std::string& path, int w, int h, bool use_gpu)
+MLDepthEstimator::MLDepthEstimator(const std::string& path, int w, int h,
+                                   bool use_gpu)
     : input_w_(w), input_h_(h) {
   net_ = dnn::readNetFromONNX(path);
   if (use_gpu) {

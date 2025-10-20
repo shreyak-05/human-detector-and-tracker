@@ -1,6 +1,6 @@
 #pragma once
-#include <opencv2/opencv.hpp>
 #include <opencv2/dnn.hpp>
+#include <opencv2/opencv.hpp>
 
 namespace perception {
 
@@ -16,10 +16,8 @@ class MLDepthEstimator {
    * @param input_h Model input height (default: 256)
    * @param use_gpu Use GPU acceleration (default: false)
    */
-  MLDepthEstimator(const std::string& model_path,
-                   int input_w = 256,
-                   int input_h = 256,
-                   bool use_gpu = false);
+  MLDepthEstimator(const std::string& model_path, int input_w = 256,
+                   int input_h = 256, bool use_gpu = false);
 
   /**
    * @brief Predict depth map from image.
@@ -36,9 +34,9 @@ class MLDepthEstimator {
   static cv::Mat normalizeDepth(const cv::Mat& depth);
 
  private:
-  cv::dnn::Net net_; ///< DNN network
-  int input_w_; ///< Input width
-  int input_h_; ///< Input height
+  cv::dnn::Net net_;  ///< DNN network
+  int input_w_;       ///< Input width
+  int input_h_;       ///< Input height
 };
 
 }  // namespace perception

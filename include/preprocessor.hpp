@@ -24,9 +24,9 @@ class Preprocessor {
   cv::Mat makeBlob(const cv::Mat& img) const;
 
  private:
-  int input_w_; ///< Target width
-  int input_h_; ///< Target height
-  bool swap_rb_; ///< Swap R/B channels
+  int input_w_;   ///< Target width
+  int input_h_;   ///< Target height
+  bool swap_rb_;  ///< Swap R/B channels
 };
 
 }  // namespace perception

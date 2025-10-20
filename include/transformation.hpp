@@ -1,5 +1,6 @@
 #pragma once
 #include <opencv2/opencv.hpp>
+
 #include "perception_types.hpp"
 
 namespace perception {
@@ -13,10 +14,10 @@ class Transformer3D {
    * @brief Camera intrinsic parameters.
    */
   struct Intrinsics {
-    float fx; ///< Focal length x (pixels)
-    float fy; ///< Focal length y (pixels)
-    float cx; ///< Principal point x (pixels)
-    float cy; ///< Principal point y (pixels)
+    float fx;  ///< Focal length x (pixels)
+    float fy;  ///< Focal length y (pixels)
+    float cx;  ///< Principal point x (pixels)
+    float cy;  ///< Principal point y (pixels)
   };
 
   /**
@@ -29,7 +30,7 @@ class Transformer3D {
   /**
    * @brief Convert pixel to robot coordinates.
    * @param u Pixel x coordinate
-   * @param v Pixel y coordinate  
+   * @param v Pixel y coordinate
    * @param depth Depth value (meters)
    * @return 3D point in robot frame
    */
@@ -44,8 +45,8 @@ class Transformer3D {
   GroundPoint boxToRobot(const cv::Rect& box, const cv::Mat& depth) const;
 
  private:
-  Intrinsics K_; ///< Camera intrinsics
-  cv::Matx44f T_cam_to_robot_; ///< Transformation matrix
+  Intrinsics K_;                ///< Camera intrinsics
+  cv::Matx44f T_cam_to_robot_;  ///< Transformation matrix
 };
 
 }  // namespace perception
