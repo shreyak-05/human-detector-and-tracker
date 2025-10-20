@@ -1,0 +1,64 @@
+# ========================
+# General OS junk
+# ========================
+.DS_Store
+Thumbs.db
+
+# ========================
+# Build & binary outputs
+# ========================
+build/
+bin/
+out/
+*.o
+*.obj
+*.a
+*.so
+*.exe
+*.dll
+*.pdb
+*.lib
+
+# ========================
+# CMake & Code Coverage
+# ========================
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+Testing/
+CTestTestfile.cmake
+*.gcno
+*.gcda
+*.gcov
+coverage/
+codecov/
+
+# ========================
+# IDE / Editor settings
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ========================
+# Logs & temporary files
+# ========================
+*.log
+*.tmp
+*.bak
+
+# ========================
+# Python / Jupyter (if any scripts)
+# ========================
+__pycache__/
+*.pyc
+*.ipynb_checkpoints/
+
+# ========================
+# Misc
+# ========================
+*.zip
+*.tar
+*.tar.gz

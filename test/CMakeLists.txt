@@ -6,7 +6,7 @@ add_executable(cpp-test
   test_preprocessor.cpp
   test_transformer.cpp
   test_detector_tracker.cpp
-  test_ml_depth.cpp
+  test_depth.cpp
   )
 
 # Any include directories needed to build this target.
@@ -18,7 +18,7 @@ target_include_directories(cpp-test PUBLIC
   )
 
 # Any dependent libraires needed to build this target.
-target_link_libraries(cpp-test PUBLIC
+target_link_libraries(cpp-test PUBLIC 
   # list of libraries:
   gtest
   detector_tracker
@@ -30,3 +30,4 @@ target_link_libraries(cpp-test PUBLIC
 # Enable CMake’s test runner to discover the tests included in the
 # binary, using the GoogleTest CMake module.
 gtest_discover_tests(cpp-test)
+
