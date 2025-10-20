@@ -1,10 +1,11 @@
 #include "detector_tracker.hpp"
+
 #include <algorithm>
 using namespace cv;
 using namespace perception;
 
-DetectorTracker::DetectorTracker(const std::string& model,
-                                 int w, int h, bool use_gpu)
+DetectorTracker::DetectorTracker(const std::string& model, int w, int h,
+                                 bool use_gpu)
     : pre_(w, h, true) {
   net_ = dnn::readNetFromONNX(model);
   if (use_gpu) {
@@ -27,19 +28,19 @@ std::vector<Detection> DetectorTracker::parse(const cv::Mat& out,
                                               const cv::Size& img_size,
                                               float conf_thresh,
                                               int cls_id) const {
-    // TODO: Parse YOLO output to detections
-    std::vector<Detection> detections;
-    return detections;
+  // TODO: Parse YOLO output to detections
+  std::vector<Detection> detections;
+  return detections;
 }
 
-std::vector<Track> DetectorTracker::associate(const std::vector<Detection>& dets) {
+std::vector<Track> DetectorTracker::associate(
+    const std::vector<Detection>& dets) {
   // TODO: Associate detections with tracks
   return tracks_;
 }
 
-std::vector<Track> DetectorTracker::step(const Mat& frame,
-                                         float conf, float nms,
-                                         int cls) {
+std::vector<Track> DetectorTracker::step(const Mat& frame, float conf,
+                                         float nms, int cls) {
   // TODO: Run detection and tracking pipeline
   std::vector<Track> tracks;
   return tracks;
