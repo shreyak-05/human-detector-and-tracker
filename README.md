@@ -2,7 +2,9 @@
 
 **Module to detect and track humans and return their coordinate position.**
 
-[![Build Status](https://github.com/shreyak-05/ENPM700_TDD_group1p2/actions/workflows/run-unit-test-and-upload-codecov.yml/badge.svg)](https://github.com/shreyak-05/ENPM700_TDD_group1p2/actions/workflows/run-unit-test-and-upload-codecov.yml) [![codecov](https://codecov.io/gh/shreyak-05/ENPM700_TDD_group1p2/graph/badge.svg?token=28JKYIHN8W)](https://codecov.io/gh/shreyak-05/ENPM700_TDD_group1p2) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://github.com/shreyak-05/human-detector-and-tracker/actions/workflows/run-unit-test-and-upload-codecov.yml/badge.svg)](https://github.com/shreyak-05/human-detector-and-tracker/actions/workflows/run-unit-test-and-upload-codecov.yml)
+
+[![codecov](https://codecov.io/gh/shreyak-05/human-detector-and-tracker/graph/badge.svg?token=29WG6208W9)](https://codecov.io/gh/shreyak-05/human-detector-and-tracker)
 
 ## Authors
 - **Shreya Kalyanaraman** (Driver)
@@ -45,7 +47,11 @@ This module provides real-time human detection and tracking for Acme Robotics' a
 
 ## Design
 
-Activity flow diagrams can be found [here](docs/activity_diagrams.md).
+### UML Class Diagram
+![UML Class Diagram](docs/UML.png)
+
+### Activity Diagram
+![Activity Diagram](docs/Activity_diagram.png)
 
 ## Development Process
 
@@ -88,8 +94,8 @@ We are using **YOLO pre-trained models** and **depth estimation networks** train
 ### Clone
 ```bash
 
-git clone git@github.com:shreyak-05/ENPM700_TDD_group1p2.git
-cd ENPM700_TDD_group1p2
+git clone git@github.com:shreyak-05/human-detector-and-tracker.git
+cd human-detector-and-tracker
 ```
 
 ---
