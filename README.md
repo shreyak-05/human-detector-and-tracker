@@ -58,7 +58,7 @@ This module provides real-time human detection and tracking for Acme Robotics' a
 **Agile Development Process** will be used in the development process with Test-Driven Development.
 
 ## Product Backlog
-[Initial Product Backlog](_ENPM700-AIP-Mid-term-project-Group3.xlsx)
+[Initial Product Backlog](docs/_ENPM700-AIP-Mid-term-project-Group3.xlsx)
 
 
 
