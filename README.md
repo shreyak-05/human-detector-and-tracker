@@ -10,8 +10,6 @@
 - **Shreya Kalyanaraman** (Driver)
 - **Tirth Sadaria** (Navigator)
 
-**Pair Programming Approach**: We follow strict pair programming with role rotation every 2 hours. All development sessions are documented with commit messages indicating driver/navigator roles.
-
 ## Overview
 
 This module provides real-time human detection and tracking for Acme Robotics' autonomous mobile robot platform. Using **YOLOv8 neural networks** and **monocular depth estimation**, the system delivers 3D human positions in robot coordinates for safe navigation.
@@ -35,14 +33,11 @@ This module provides real-time human detection and tracking for Acme Robotics' a
 
 ## Potential Risks and Mitigation
 
-- **Depth estimation accuracy in monocular setup**
-  - *Mitigation*: Validate against known distances, implement confidence scoring, use robust depth networks
+- **Depth estimation accuracy in monocular setup**: Validate against known distances, implement confidence scoring, use robust depth networks
 
-- **False and duplicate detection**
-  - *Mitigation*: Proper NMS implementation, confidence thresholding, temporal consistency checks
+- **False and duplicate detection**: Proper NMS implementation, confidence thresholding, temporal consistency checks
 
-- **Integration complexity with existing robot systems**
-  - *Mitigation*: Design clean interfaces, extensive documentation, modular architecture
+- **Integration complexity with existing robot systems**: Design clean interfaces, extensive documentation, modular architecture
 
 
 ## Design
@@ -55,7 +50,7 @@ This module provides real-time human detection and tracking for Acme Robotics' a
 
 ## Development Process
 
-**Agile Development Process** will be used in the development process with **Test-Driven Development**.
+**Agile Development Process** will be used in the development process with Test-Driven Development.
 
 ## Product Backlog
 [Initial Product Backlog](docs/product_backlog.md)
