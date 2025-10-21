@@ -57,10 +57,15 @@ This module provides real-time human detection and tracking for Acme Robotics' a
 
 **Agile Development Process** will be used in the development process with Test-Driven Development.
 
+## Software Plan - Phase 0 Proposal
+[Software Plan](docs/Midterm_Phase0_Group3_doc.pdf)
+
 ## Product Backlog
 [Initial Product Backlog](docs/_ENPM700-AIP-Mid-term-project-Group3.xlsx)
 
 
+## Quad Chart
+[Quad Chart](docs/ENPM700_Mid_Term_Phase0_Group3_Quad_Chart.pdf)
 
 ## Tools and Technologies Used
 
