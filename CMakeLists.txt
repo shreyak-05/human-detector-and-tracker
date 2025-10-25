@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(scratch)
+project(HumanDetectorTracker VERSION 1.0)
 
 #
 # GoogleTest Setup
@@ -9,6 +9,9 @@ project(scratch)
 # GoogleTest requires at least C++14
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Find OpenCV dependency
+find_package(OpenCV 4 REQUIRED)
 
 # declares a dependency on GoogleTest which is downloaded from GitHub
 include(FetchContent)
@@ -99,6 +102,31 @@ doxygen_add_docs(docs           # target name
   ${PROJECT_SOURCE_DIR}/libs
   ${PROJECT_SOURCE_DIR}/include
   )
+
+# Add cppcheck custom target for static analysis
+find_program(CPPCHECK_EXECUTABLE cppcheck)
+if(CPPCHECK_EXECUTABLE)
+  add_custom_target(cpp-check
+    COMMAND ${CPPCHECK_EXECUTABLE}
+      --enable=all
+      --inline-suppr
+      --error-exitcode=1
+      --suppress=missingIncludeSystem
+      --suppress=unknownMacro
+      -I libs
+      --std=c++17
+      --language=c++
+      --project=${CMAKE_BINARY_DIR}/compile_commands.json
+      -i ${CMAKE_BINARY_DIR}/_deps
+      2> ${CMAKE_SOURCE_DIR}/results/cppcheck.txt
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Running cppcheck static analysis"
+  )
+  # Ensure results directory exists
+  file(MAKE_DIRECTORY ${CMAKE_SOURCE_DIR}/results)
+else()
+  message(WARNING "cppcheck not found - cpp-check target will not be available")
+endif()
 
 # create targets for building code coverage reports
 if(WANT_COVERAGE)

@@ -1,0 +1,53 @@
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/include/detector_tracker.hpp:56:26: style: Unused private function: 'DetectorTracker::parse' [unusedPrivateFunction]
+  std::vector<Detection> parse(const cv::Mat& out, const cv::Size& img_size,
+                         ^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/include/detector_tracker.hpp:64:22: style: Unused private function: 'DetectorTracker::associate' [unusedPrivateFunction]
+  std::vector<Track> associate(const std::vector<Detection>& dets);
+                     ^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/include/detector_tracker.hpp:72:9: style: Unused private function: 'DetectorTracker::iou' [unusedPrivateFunction]
+  float iou(const cv::Rect& a, const cv::Rect& b) const;
+        ^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/detector_tracker/detector_tracker.cpp:10:3: performance: Variable 'net_' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
+  net_ = dnn::readNetFromONNX(model);
+  ^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/ml_depth_estimator/ml_depth_estimator.cpp:8:3: performance: Variable 'net_' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
+  net_ = dnn::readNetFromONNX(path);
+  ^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/include/ml_depth_estimator.hpp:19:3: style: Class 'MLDepthEstimator' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
+  MLDepthEstimator(const std::string& model_path, int input_w = 256,
+  ^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/app/main.cpp:9:27: style: Parameter 'argv' can be declared with const [constParameter]
+int main(int argc, char** argv) {
+                          ^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/detector_tracker/detector_tracker.cpp:36:0: style: The function 'associate' is never used. [unusedFunction]
+
+^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/transformer/transformer.cpp:13:0: style: The function 'boxToRobot' is never used. [unusedFunction]
+
+^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/detector_tracker/detector_tracker.cpp:49:0: style: The function 'drawTracks' is never used. [unusedFunction]
+
+^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/ml_depth_estimator/ml_depth_estimator.cpp:20:0: style: The function 'infer' is never used. [unusedFunction]
+
+^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/detector_tracker/detector_tracker.cpp:22:0: style: The function 'iou' is never used. [unusedFunction]
+
+^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/preprocessor/preprocessor.cpp:11:0: style: The function 'makeBlob' is never used. [unusedFunction]
+
+^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/ml_depth_estimator/ml_depth_estimator.cpp:26:0: style: The function 'normalizeDepth' is never used. [unusedFunction]
+
+^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/detector_tracker/detector_tracker.cpp:27:0: style: The function 'parse' is never used. [unusedFunction]
+
+^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/transformer/transformer.cpp:8:0: style: The function 'pixelToRobot' is never used. [unusedFunction]
+
+^
+/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/detector_tracker/detector_tracker.cpp:42:0: style: The function 'step' is never used. [unusedFunction]
+
+^
+nofile:0:0: information: Unmatched suppression: unknownMacro [unmatchedSuppression]
+
