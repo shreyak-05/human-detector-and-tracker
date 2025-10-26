@@ -11,9 +11,10 @@
 using namespace cv;
 using namespace perception;
 
-DetectorTracker::DetectorTracker(const std::string& model, int w, int h,
+DetectorTracker::DetectorTracker(std::shared_ptr<IPreprocessor> preprocessor,
+                                 const std::string& model,
                                  bool use_gpu)
-    : pre_(w, h, true) {
+    : preprocessor_(std::move(preprocessor)) {
   net_ = dnn::readNetFromONNX(model);
   if (use_gpu) {
 #if CV_VERSION_MAJOR >= 4
@@ -24,6 +25,14 @@ DetectorTracker::DetectorTracker(const std::string& model, int w, int h,
     net_.setPreferableBackend(dnn::DNN_BACKEND_OPENCV);
     net_.setPreferableTarget(dnn::DNN_TARGET_CPU);
   }
+}
+
+std::vector<Detection> DetectorTracker::detect(const cv::Mat& frame) {
+  cv::Mat blob = preprocessor_->process(frame);
+  
+  // We will add DNN logic here in the next step
+  
+  return {}; // Return empty detections for now
 }
 
 std::vector<Detection> DetectorTracker::post_process(const cv::Mat& output, float conf_thresh) const {

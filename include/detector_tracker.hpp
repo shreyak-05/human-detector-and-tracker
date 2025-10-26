@@ -7,6 +7,7 @@
 
 #pragma once
 #include <gtest/gtest.h>
+#include <memory>
 #include <opencv2/dnn.hpp>
 #include <opencv2/opencv.hpp>
 #include <vector>
@@ -26,14 +27,24 @@ class DetectorTracker {
   FRIEND_TEST(DetectorTest, PostProcessYoloOutput);
  public:
   /**
-   * @brief Constructor for detector-tracker.
-   * @param model_path Path to YOLO ONNX model file
-   * @param input_w Model input width (default: 640)
-   * @param input_h Model input height (default: 640)
-   * @param use_gpu Whether to use GPU acceleration (default: false)
+   * @brief Constructor for detector-tracker with dependency injection.
+   * 
+   * This constructor uses dependency injection for the preprocessor, allowing for
+   * flexible testing with mock preprocessors and runtime preprocessor selection.
+   * The preprocessor is passed as a shared pointer to the IPreprocessor interface,
+   * enabling polymorphic behavior.
+   * 
+   * @param preprocessor Shared pointer to the image preprocessor implementing IPreprocessor.
+   *                     Ownership is transferred to this DetectorTracker instance.
+   * @param model_path Path to the YOLO ONNX model file to load
+   * @param use_gpu Whether to use GPU acceleration (default: false).
+   *                When true, attempts to use CUDA/OpenVINO if available.
+   * 
+   * @throws cv::Exception if the ONNX model file cannot be loaded
    */
-  explicit DetectorTracker(const std::string& model_path, int input_w = 640,
-                           int input_h = 640, bool use_gpu = false);
+  explicit DetectorTracker(std::shared_ptr<IPreprocessor> preprocessor,
+                           const std::string& model_path,
+                           bool use_gpu = false);
 
   /**
    * @brief Run detection and update active tracks.
@@ -45,6 +56,13 @@ class DetectorTracker {
    */
   std::vector<Track> step(const cv::Mat& frame, float conf_thresh = 0.4f,
                           float nms_thresh = 0.45f, int person_class_id = 0);
+
+  /**
+   * @brief Detect humans in a frame.
+   * @param frame Input video frame
+   * @return Vector of detections
+   */
+  std::vector<Detection> detect(const cv::Mat& frame);
 
   /**
    * @brief Draw active tracks.
@@ -95,10 +113,10 @@ class DetectorTracker {
    */
   float iou(const cv::Rect& a, const cv::Rect& b) const;
 
-  cv::dnn::Net net_;           ///< YOLO neural network
-  Preprocessor pre_;           ///< Image preprocessor for network input
-  int next_id_{0};             ///< Next available track ID
-  std::vector<Track> tracks_;  ///< Currently active tracks
+  std::shared_ptr<IPreprocessor> preprocessor_; ///< Image preprocessor for network input
+  cv::dnn::Net net_;                            ///< YOLO neural network
+  int next_id_{0};                              ///< Next available track ID
+  std::vector<Track> tracks_;                   ///< Currently active tracks
 };
 
 }  // namespace perception
