@@ -10,6 +10,7 @@ add_executable(run_tests
 target_link_libraries(run_tests PRIVATE
   detector_lib
   gtest_main
+  gmock
   ${OpenCV_LIBS}
 )
 

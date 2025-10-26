@@ -11,9 +11,38 @@
 namespace perception {
 
 /**
+ * @brief Interface for image preprocessing.
+ * 
+ * This abstract interface defines the contract for image preprocessing operations.
+ * Implementations of this interface are responsible for converting raw image frames
+ * into 4D blob tensors suitable for input to neural networks.
+ * 
+ * @note This interface supports dependency injection, allowing mock implementations
+ *       for unit testing and flexible runtime preprocessor selection.
+ */
+class IPreprocessor {
+ public:
+  /**
+   * @brief Virtual destructor for polymorphic destruction.
+   */
+  virtual ~IPreprocessor() = default;
+  
+  /**
+   * @brief Process image frame into a blob for DNN.
+   * 
+   * This pure virtual method must be implemented by concrete preprocessor classes.
+   * It takes a raw image frame and returns a 4D blob tensor suitable for neural network input.
+   * 
+   * @param frame Input image frame (typically BGR format from video/webcam)
+   * @return Processed 4D blob tensor [N,C,H,W] where N=1, C=3
+   */
+  virtual cv::Mat process(const cv::Mat& frame) = 0;
+};
+
+/**
  * @brief Image preprocessing for DNN models.
  */
-class Preprocessor {
+class Preprocessor : public IPreprocessor {
  public:
   /**
    * @brief Constructor for preprocessor.
@@ -32,7 +61,7 @@ class Preprocessor {
    * @param frame Input image frame (BGR format)
    * @return 4D blob tensor [N,C,H,W] where N=1, C=3, H=input_h, W=input_w
    */
-  cv::Mat process(const cv::Mat& frame);
+  cv::Mat process(const cv::Mat& frame) override;
 
   /**
    * @brief Create normalized blob for DNN.
