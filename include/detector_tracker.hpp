@@ -12,6 +12,7 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
+#include "inetwork.hpp"
 #include "perception_types.hpp"
 #include "preprocessor.hpp"
 
@@ -29,22 +30,22 @@ class DetectorTracker {
   /**
    * @brief Constructor for detector-tracker with dependency injection.
    * 
-   * This constructor uses dependency injection for the preprocessor, allowing for
-   * flexible testing with mock preprocessors and runtime preprocessor selection.
-   * The preprocessor is passed as a shared pointer to the IPreprocessor interface,
+   * This constructor uses dependency injection for both the preprocessor and network,
+   * allowing for flexible testing with mock objects and runtime component selection.
+   * Both dependencies are passed as shared pointers to their respective interfaces,
    * enabling polymorphic behavior.
    * 
    * @param preprocessor Shared pointer to the image preprocessor implementing IPreprocessor.
    *                     Ownership is transferred to this DetectorTracker instance.
-   * @param model_path Path to the YOLO ONNX model file to load
-   * @param use_gpu Whether to use GPU acceleration (default: false).
-   *                When true, attempts to use CUDA/OpenVINO if available.
+   * @param network Shared pointer to the neural network implementing INetwork.
+   *                Ownership is transferred to this DetectorTracker instance.
+   * @param confidence_threshold Confidence threshold for filtering detections (default: 0.5)
    * 
-   * @throws cv::Exception if the ONNX model file cannot be loaded
+   * @throws cv::Exception if the network fails to initialize
    */
   explicit DetectorTracker(std::shared_ptr<IPreprocessor> preprocessor,
-                           const std::string& model_path,
-                           bool use_gpu = false);
+                           std::shared_ptr<INetwork> network,
+                           float confidence_threshold = 0.5f);
 
   /**
    * @brief Run detection and update active tracks.
@@ -59,8 +60,14 @@ class DetectorTracker {
 
   /**
    * @brief Detect humans in a frame.
-   * @param frame Input video frame
-   * @return Vector of detections
+   * 
+   * This method orchestrates the full detection pipeline:
+   * 1. Preprocess the frame using the injected preprocessor
+   * 2. Run neural network inference on the preprocessed blob
+   * 3. Post-process the network output to extract bounding boxes and confidences
+   * 
+   * @param frame Input video frame (BGR format)
+   * @return Vector of filtered detections with bounding boxes and confidence scores
    */
   std::vector<Detection> detect(const cv::Mat& frame);
 
@@ -113,10 +120,11 @@ class DetectorTracker {
    */
   float iou(const cv::Rect& a, const cv::Rect& b) const;
 
-  std::shared_ptr<IPreprocessor> preprocessor_; ///< Image preprocessor for network input
-  cv::dnn::Net net_;                            ///< YOLO neural network
-  int next_id_{0};                              ///< Next available track ID
-  std::vector<Track> tracks_;                   ///< Currently active tracks
+  std::shared_ptr<IPreprocessor> preprocessor_;   ///< Image preprocessor for network input
+  std::shared_ptr<INetwork> network_;             ///< Neural network for inference
+  float confidence_threshold_;                    ///< Confidence threshold for filtering
+  int next_id_{0};                                ///< Next available track ID
+  std::vector<Track> tracks_;                     ///< Currently active tracks
 };
 
 }  // namespace perception

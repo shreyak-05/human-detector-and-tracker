@@ -7,6 +7,7 @@ target_sources(detector_lib PRIVATE
     ml_depth_estimator/ml_depth_estimator.cpp
     preprocessor/preprocessor.cpp
     transformer/transformer.cpp
+    onnx_network/onnx_network.cpp
 )
 
 # Set include directories

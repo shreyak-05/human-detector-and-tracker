@@ -12,27 +12,17 @@ using namespace cv;
 using namespace perception;
 
 DetectorTracker::DetectorTracker(std::shared_ptr<IPreprocessor> preprocessor,
-                                 const std::string& model,
-                                 bool use_gpu)
-    : preprocessor_(std::move(preprocessor)) {
-  net_ = dnn::readNetFromONNX(model);
-  if (use_gpu) {
-#if CV_VERSION_MAJOR >= 4
-    net_.setPreferableBackend(dnn::DNN_BACKEND_CUDA);
-    net_.setPreferableTarget(dnn::DNN_TARGET_CUDA_FP16);
-#endif
-  } else {
-    net_.setPreferableBackend(dnn::DNN_BACKEND_OPENCV);
-    net_.setPreferableTarget(dnn::DNN_TARGET_CPU);
-  }
+                                 std::shared_ptr<INetwork> network,
+                                 float confidence_threshold)
+    : preprocessor_(std::move(preprocessor)),
+      network_(std::move(network)),
+      confidence_threshold_(confidence_threshold) {
 }
 
 std::vector<Detection> DetectorTracker::detect(const cv::Mat& frame) {
   cv::Mat blob = preprocessor_->process(frame);
-  
-  // We will add DNN logic here in the next step
-  
-  return {}; // Return empty detections for now
+  cv::Mat output = network_->forward(blob);
+  return post_process(output, confidence_threshold_);
 }
 
 std::vector<Detection> DetectorTracker::post_process(const cv::Mat& output, float conf_thresh) const {
