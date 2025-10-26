@@ -1,4 +1,12 @@
+/**
+ * @file detector_tracker.hpp
+ * @brief YOLO-based human detection and tracking
+ * @author Shreya Kalyanaraman
+ * @author Tirth Sadaria
+ */
+
 #pragma once
+#include <gtest/gtest.h>
 #include <opencv2/dnn.hpp>
 #include <opencv2/opencv.hpp>
 #include <vector>
@@ -15,6 +23,7 @@ namespace perception {
  * to maintain persistent track IDs across video frames.
  */
 class DetectorTracker {
+  FRIEND_TEST(DetectorTest, PostProcessYoloOutput);
  public:
   /**
    * @brief Constructor for detector-tracker.
@@ -44,7 +53,22 @@ class DetectorTracker {
    */
   static void drawTracks(cv::Mat& img, const std::vector<Track>& tracks);
 
+  /**
+   * @brief Post-process YOLO network output to extract detections.
+   * 
+   * This method parses YOLO raw output tensor, filters detections by confidence threshold,
+   * converts center-based bounding boxes to top-left format, and applies NMS.
+   * Public for testing purposes (via FRIEND_TEST).
+   * 
+   * @param output Raw YOLO network output tensor [5, N_detections] where each column
+   *               contains [cx, cy, w, h, conf] for a detection
+   * @param conf_thresh Confidence threshold for filtering (e.g., 0.5)
+   * @return Vector of filtered and processed detections
+   */
+  std::vector<Detection> post_process(const cv::Mat& output, float conf_thresh) const;
+
  private:
+
   /**
    * @brief Parse YOLO network output into detections.
    * @param out Raw network output tensor
