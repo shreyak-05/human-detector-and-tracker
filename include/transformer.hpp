@@ -9,6 +9,7 @@
 #include <opencv2/opencv.hpp>
 #include <memory>
 
+#include "itransformer.hpp"
 #include "perception_types.hpp"
 
 namespace perception {
@@ -16,7 +17,7 @@ namespace perception {
 /**
  * @brief Projects 2D pixels to 3D robot coordinates.
  */
-class Transformer3D {
+class Transformer3D : public ITransformer {
  public:
   /**
    * @brief Camera intrinsic parameters.
@@ -47,7 +48,7 @@ class Transformer3D {
    * @param depth Depth value in meters
    * @return 3D point in camera frame (x, y, z)
    */
-  cv::Point3f project_to_3d(cv::Point2f pixel, float depth);
+  cv::Point3f project_to_3d(cv::Point2f pixel, float depth) override;
 
   /**
    * @brief Convert pixel to robot coordinates.

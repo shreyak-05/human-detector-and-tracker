@@ -13,9 +13,13 @@ using namespace perception;
 
 DetectorTracker::DetectorTracker(std::shared_ptr<IPreprocessor> preprocessor,
                                  std::shared_ptr<INetwork> network,
+                                 std::shared_ptr<IDepthEstimator> depth_estimator,
+                                 std::shared_ptr<ITransformer> transformer,
                                  float confidence_threshold)
     : preprocessor_(std::move(preprocessor)),
       network_(std::move(network)),
+      depth_estimator_(std::move(depth_estimator)),
+      transformer_(std::move(transformer)),
       confidence_threshold_(confidence_threshold) {
 }
 
@@ -23,6 +27,30 @@ std::vector<Detection> DetectorTracker::detect(const cv::Mat& frame) {
   cv::Mat blob = preprocessor_->process(frame);
   cv::Mat output = network_->forward(blob);
   return post_process(output, confidence_threshold_);
+}
+
+std::vector<Detection3D> DetectorTracker::get_3d_positions(const cv::Mat& frame) {
+  // First, get the 2D detections
+  std::vector<Detection> detections = detect(frame);
+  
+  std::vector<Detection3D> positions;
+  
+  // Now, iterate and get 3D info
+  for (const auto& det : detections) {
+    // Get depth for the detection
+    float depth = depth_estimator_->get_depth(frame, det.box);
+    
+    // Get the pixel at the center of the bounding box
+    cv::Point2f center_pixel(det.box.x + det.box.width / 2.0f, 
+                             det.box.y + det.box.height / 2.0f);
+    
+    // Convert to 3D
+    cv::Point3f pos = transformer_->project_to_3d(center_pixel, depth);
+    
+    positions.push_back({0, pos}); // TODO: Add real tracking ID
+  }
+  
+  return positions;
 }
 
 std::vector<Detection> DetectorTracker::post_process(const cv::Mat& output, float conf_thresh) const {

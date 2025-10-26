@@ -7,7 +7,9 @@
 
 #pragma once
 #include <gmock/gmock.h>
+#include "idepth_estimator.hpp"
 #include "inetwork.hpp"
+#include "itransformer.hpp"
 #include "preprocessor.hpp"
 
 namespace perception {
@@ -72,6 +74,28 @@ class MockNetwork : public INetwork {
    * @return Mocked return value (set via EXPECT_CALL)
    */
   MOCK_METHOD(cv::Mat, forward, (const cv::Mat& blob), (override));
+};
+
+/**
+ * @brief Mock depth estimator for unit testing.
+ * 
+ * This mock class implements the IDepthEstimator interface using Google Mock.
+ * It allows setting expectations on depth estimation calls during unit tests.
+ */
+class MockDepthEstimator : public IDepthEstimator {
+ public:
+  MOCK_METHOD(float, get_depth, (const cv::Mat& frame, cv::Rect bbox), (override));
+};
+
+/**
+ * @brief Mock transformer for unit testing.
+ * 
+ * This mock class implements the ITransformer interface using Google Mock.
+ * It allows setting expectations on coordinate transformation calls during unit tests.
+ */
+class MockTransformer : public ITransformer {
+ public:
+  MOCK_METHOD(cv::Point3f, project_to_3d, (cv::Point2f pixel, float depth), (override));
 };
 
 }  // namespace perception

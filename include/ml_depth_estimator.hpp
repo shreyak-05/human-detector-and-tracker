@@ -1,4 +1,5 @@
 #pragma once
+#include "idepth_estimator.hpp"
 #include <opencv2/dnn.hpp>
 #include <opencv2/opencv.hpp>
 
@@ -7,7 +8,7 @@ namespace perception {
 /**
  * @brief Monocular depth estimator using ONNX models.
  */
-class MLDepthEstimator {
+class MLDepthEstimator : public IDepthEstimator {
  public:
   /**
    * @brief Constructor for depth estimator.

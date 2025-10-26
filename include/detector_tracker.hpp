@@ -12,7 +12,9 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
+#include "idepth_estimator.hpp"
 #include "inetwork.hpp"
+#include "itransformer.hpp"
 #include "perception_types.hpp"
 #include "preprocessor.hpp"
 
@@ -30,21 +32,29 @@ class DetectorTracker {
   /**
    * @brief Constructor for detector-tracker with dependency injection.
    * 
-   * This constructor uses dependency injection for both the preprocessor and network,
-   * allowing for flexible testing with mock objects and runtime component selection.
-   * Both dependencies are passed as shared pointers to their respective interfaces,
-   * enabling polymorphic behavior.
+   * This constructor uses dependency injection for all components, providing a clean
+   * separation of concerns and enabling flexible testing with mock objects. All dependencies
+   * are passed as shared pointers to their respective interfaces, enabling polymorphic
+   * behavior and isolated unit testing without requiring actual ONNX models or camera hardware.
+   * 
+   * This architecture allows the DetectorTracker to be a pure orchestration class that
+   * coordinates the workflow but delegates all concrete operations to injected components.
    * 
    * @param preprocessor Shared pointer to the image preprocessor implementing IPreprocessor.
-   *                     Ownership is transferred to this DetectorTracker instance.
+   *                     Converts raw frames to neural network input blobs.
    * @param network Shared pointer to the neural network implementing INetwork.
-   *                Ownership is transferred to this DetectorTracker instance.
-   * @param confidence_threshold Confidence threshold for filtering detections (default: 0.5)
-   * 
-   * @throws cv::Exception if the network fails to initialize
+   *                Runs YOLO-style detection inference.
+   * @param depth_estimator Shared pointer to the depth estimator implementing IDepthEstimator.
+   *                        Estimates depth values for detected regions.
+   * @param transformer Shared pointer to the transformer implementing ITransformer.
+   *                   Converts 2D pixel coordinates with depth to 3D positions.
+   * @param confidence_threshold Confidence threshold for filtering detections (default: 0.5).
+   *                              Only detections with confidence >= threshold are returned.
    */
   explicit DetectorTracker(std::shared_ptr<IPreprocessor> preprocessor,
                            std::shared_ptr<INetwork> network,
+                           std::shared_ptr<IDepthEstimator> depth_estimator,
+                           std::shared_ptr<ITransformer> transformer,
                            float confidence_threshold = 0.5f);
 
   /**
@@ -70,6 +80,25 @@ class DetectorTracker {
    * @return Vector of filtered detections with bounding boxes and confidence scores
    */
   std::vector<Detection> detect(const cv::Mat& frame);
+
+  /**
+   * @brief Get 3D positions of detected humans.
+   * 
+   * This method orchestrates the full 3D position estimation pipeline:
+   * 1. Detect humans in 2D using the detect() method to get bounding boxes
+   * 2. Estimate depth for each detection using the depth estimator
+   * 3. Extract the center pixel of each bounding box
+   * 4. Transform 2D coordinates to 3D using the transformer with the estimated depth
+   * 
+   * The resulting 3D positions are in camera/robot coordinate frame, suitable for
+   * navigation and obstacle avoidance systems.
+   * 
+   * @param frame Input video frame (BGR format) containing the scene to analyze
+   * @return Vector of 3D positions with detection IDs. Each Detection3D contains:
+   *         - detection_id: Unique identifier for the detection
+   *         - position: 3D point (x, y, z) in camera/robot frame (meters)
+   */
+  std::vector<Detection3D> get_3d_positions(const cv::Mat& frame);
 
   /**
    * @brief Draw active tracks.
@@ -120,11 +149,13 @@ class DetectorTracker {
    */
   float iou(const cv::Rect& a, const cv::Rect& b) const;
 
-  std::shared_ptr<IPreprocessor> preprocessor_;   ///< Image preprocessor for network input
-  std::shared_ptr<INetwork> network_;             ///< Neural network for inference
-  float confidence_threshold_;                    ///< Confidence threshold for filtering
-  int next_id_{0};                                ///< Next available track ID
-  std::vector<Track> tracks_;                     ///< Currently active tracks
+  std::shared_ptr<IPreprocessor> preprocessor_;     ///< Image preprocessor for network input
+  std::shared_ptr<INetwork> network_;               ///< Neural network for inference
+  std::shared_ptr<IDepthEstimator> depth_estimator_; ///< Depth estimator
+  std::shared_ptr<ITransformer> transformer_;       ///< 3D coordinate transformer
+  float confidence_threshold_;                     ///< Confidence threshold for filtering
+  int next_id_{0};                                  ///< Next available track ID
+  std::vector<Track> tracks_;                       ///< Currently active tracks
 };
 
 }  // namespace perception
