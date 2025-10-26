@@ -12,13 +12,18 @@ protected:
     void SetUp() override {
         mock_preprocessor_ = std::make_shared<::testing::StrictMock<perception::MockPreprocessor>>();
         mock_network_ = std::make_shared<::testing::StrictMock<perception::MockNetwork>>();
+        mock_depth_estimator_ = std::make_shared<::testing::StrictMock<perception::MockDepthEstimator>>();
+        mock_transformer_ = std::make_shared<::testing::StrictMock<perception::MockTransformer>>();
         
         // Create DetectorTracker with mock dependencies
-        detector_ = std::make_unique<perception::DetectorTracker>(mock_preprocessor_, mock_network_);
+        detector_ = std::make_unique<perception::DetectorTracker>(mock_preprocessor_, mock_network_,
+                                                                   mock_depth_estimator_, mock_transformer_);
     }
     
     std::shared_ptr<perception::MockPreprocessor> mock_preprocessor_;
     std::shared_ptr<perception::MockNetwork> mock_network_;
+    std::shared_ptr<perception::MockDepthEstimator> mock_depth_estimator_;
+    std::shared_ptr<perception::MockTransformer> mock_transformer_;
     std::unique_ptr<perception::DetectorTracker> detector_;
 };
 
@@ -107,4 +112,37 @@ TEST_F(DetectorTest, DetectOrchestratesFullPipeline) {
     // Assert the final result, which comes from post_process
     ASSERT_EQ(detections.size(), 1);
     ASSERT_FLOAT_EQ(detections[0].confidence, 0.95f);
+}
+
+TEST_F(DetectorTest, Get3DPositionsOrchestration) {
+    cv::Mat fake_frame(100, 100, CV_8UC3);
+    cv::Mat fake_blob = cv::Mat::zeros(1, 3, CV_32F);
+    
+    // Create fake YOLO output: cx, cy, w, h, conf
+    float data[5] = {100.0f, 120.0f, 20.0f, 40.0f, 0.95f};
+    cv::Mat fake_output(5, 1, CV_32F, data);
+    
+    cv::Rect expected_bbox(90, 100, 20, 40);
+    cv::Point2f expected_center(100.0f, 120.0f);
+    float expected_depth = 2.0f;
+    cv::Point3f expected_position(0.2f, 0.4f, 2.0f);
+    
+    // Set up ALL mock expectations for the full pipeline
+    EXPECT_CALL(*mock_preprocessor_, process(::testing::_))
+        .WillOnce(::testing::Return(fake_blob));
+    EXPECT_CALL(*mock_network_, forward(::testing::_))
+        .WillOnce(::testing::Return(fake_output));
+    EXPECT_CALL(*mock_depth_estimator_, get_depth(::testing::_, expected_bbox))
+        .WillOnce(::testing::Return(expected_depth));
+    EXPECT_CALL(*mock_transformer_, project_to_3d(expected_center, expected_depth))
+        .WillOnce(::testing::Return(expected_position));
+    
+    // Run the new method
+    auto positions = detector_->get_3d_positions(fake_frame);
+    
+    // Assert the final result
+    ASSERT_EQ(positions.size(), 1);
+    ASSERT_FLOAT_EQ(positions[0].position.x, 0.2f);
+    ASSERT_FLOAT_EQ(positions[0].position.y, 0.4f);
+    ASSERT_FLOAT_EQ(positions[0].position.z, 2.0f);
 }

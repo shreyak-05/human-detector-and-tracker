@@ -32,4 +32,12 @@ struct GroundPoint {
   float Z{0.0f};  ///< Z coordinate (meters)
 };
 
+/**
+ * @brief 3D detection with position.
+ */
+struct Detection3D {
+  int detection_id;    ///< Unique detection ID
+  cv::Point3f position; ///< 3D position in camera/robot frame
+};
+
 }  // namespace perception
