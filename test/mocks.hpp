@@ -7,6 +7,7 @@
 
 #pragma once
 #include <gmock/gmock.h>
+#include "inetwork.hpp"
 #include "preprocessor.hpp"
 
 namespace perception {
@@ -40,6 +41,37 @@ class MockPreprocessor : public IPreprocessor {
    * @return Mocked return value (set via EXPECT_CALL)
    */
   MOCK_METHOD(cv::Mat, process, (const cv::Mat& frame), (override));
+};
+
+/**
+ * @brief Mock network for unit testing.
+ * 
+ * This mock class implements the INetwork interface using Google Mock (GMock).
+ * It allows setting expectations on neural network forward pass calls and controlling
+ * return values during unit tests, enabling isolated testing of components that depend
+ * on INetwork without requiring real model loading and inference.
+ * 
+ * @note Use with ::testing::StrictMock<MockNetwork> to ensure all expected
+ *       calls are made and unexpected calls fail the test.
+ * 
+ * @example
+ * ```cpp
+ * auto mock = std::make_shared<::testing::StrictMock<MockNetwork>>();
+ * EXPECT_CALL(*mock, forward(::testing::_)).WillOnce(Return(output));
+ * ```
+ */
+class MockNetwork : public INetwork {
+ public:
+  /**
+   * @brief Mock implementation of the forward method.
+   * 
+   * This method uses GMock's MOCK_METHOD macro to enable setting expectations
+   * and controlling return values in unit tests.
+   * 
+   * @param blob Input blob tensor [N,C,H,W] (can be matched with ::testing::_ for any input)
+   * @return Mocked return value (set via EXPECT_CALL)
+   */
+  MOCK_METHOD(cv::Mat, forward, (const cv::Mat& blob), (override));
 };
 
 }  // namespace perception

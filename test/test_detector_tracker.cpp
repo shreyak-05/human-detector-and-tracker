@@ -11,11 +11,15 @@ class DetectorTest : public ::testing::Test {
 protected:
     void SetUp() override {
         mock_preprocessor_ = std::make_shared<::testing::StrictMock<perception::MockPreprocessor>>();
-        // Note: We can't instantiate DetectorTracker due to ONNX requirement, 
-        // so we'll test the logic inline
+        mock_network_ = std::make_shared<::testing::StrictMock<perception::MockNetwork>>();
+        
+        // Create DetectorTracker with mock dependencies
+        detector_ = std::make_unique<perception::DetectorTracker>(mock_preprocessor_, mock_network_);
     }
     
     std::shared_ptr<perception::MockPreprocessor> mock_preprocessor_;
+    std::shared_ptr<perception::MockNetwork> mock_network_;
+    std::unique_ptr<perception::DetectorTracker> detector_;
 };
 
 TEST_F(DetectorTest, PostProcessYoloOutput) {
@@ -81,4 +85,26 @@ TEST_F(DetectorTest, DetectCallsPreprocessor) {
     
     // Verify that the preprocessor was called (expectation met)
     // This tests the mock infrastructure is working correctly
+}
+
+TEST_F(DetectorTest, DetectOrchestratesFullPipeline) {
+    cv::Mat fake_frame(100, 100, CV_8UC3);
+    cv::Mat fake_blob = cv::Mat::zeros(1, 3, CV_32F);
+    
+    // Create the fake YOLO output from our previous test
+    float data[5] = {100.0f, 120.0f, 20.0f, 40.0f, 0.95f};
+    cv::Mat fake_output(5, 1, CV_32F, data);
+    
+    // Set up the mock expectations
+    EXPECT_CALL(*mock_preprocessor_, process(::testing::_))
+        .WillOnce(::testing::Return(fake_blob));
+    EXPECT_CALL(*mock_network_, forward(::testing::_))
+        .WillOnce(::testing::Return(fake_output));
+    
+    // Run the detect method
+    auto detections = detector_->detect(fake_frame);
+    
+    // Assert the final result, which comes from post_process
+    ASSERT_EQ(detections.size(), 1);
+    ASSERT_FLOAT_EQ(detections[0].confidence, 0.95f);
 }
