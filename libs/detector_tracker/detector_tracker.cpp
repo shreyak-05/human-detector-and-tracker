@@ -1,3 +1,10 @@
+/**
+ * @file detector_tracker.cpp
+ * @brief Implementation of YOLO-based human detection and tracking
+ * @author Shreya Kalyanaraman
+ * @author Tirth Sadaria
+ */
+
 #include "detector_tracker.hpp"
 
 #include <algorithm>
@@ -17,6 +24,38 @@ DetectorTracker::DetectorTracker(const std::string& model, int w, int h,
     net_.setPreferableBackend(dnn::DNN_BACKEND_OPENCV);
     net_.setPreferableTarget(dnn::DNN_TARGET_CPU);
   }
+}
+
+std::vector<Detection> DetectorTracker::post_process(const cv::Mat& output, float conf_thresh) const {
+  std::vector<cv::Rect> boxes;
+  std::vector<float> confidences;
+  
+  // Iterate columns (detections)
+  for (int i = 0; i < output.cols; ++i) {
+    float conf = output.at<float>(4, i);
+    if (conf < conf_thresh) continue;
+    
+    float cx = output.at<float>(0, i);
+    float cy = output.at<float>(1, i);
+    float w = output.at<float>(2, i);
+    float h = output.at<float>(3, i);
+    
+    int x = static_cast<int>(cx - w / 2);
+    int y = static_cast<int>(cy - h / 2);
+    
+    boxes.emplace_back(x, y, static_cast<int>(w), static_cast<int>(h));
+    confidences.push_back(conf);
+  }
+  
+  std::vector<int> indices;
+  cv::dnn::NMSBoxes(boxes, confidences, conf_thresh, 0.4f, indices);
+  
+  std::vector<Detection> detections;
+  for (int idx : indices) {
+    detections.push_back({boxes[idx], confidences[idx], 0});
+  }
+  
+  return detections;
 }
 
 float DetectorTracker::iou(const Rect& a, const Rect& b) const {
