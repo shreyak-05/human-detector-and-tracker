@@ -6,7 +6,6 @@
  */
 
 #pragma once
-#include <gtest/gtest.h>
 #include <memory>
 #include <opencv2/dnn.hpp>
 #include <opencv2/opencv.hpp>
@@ -27,7 +26,7 @@ namespace perception {
  * to maintain persistent track IDs across video frames.
  */
 class DetectorTracker {
-  FRIEND_TEST(DetectorTest, PostProcessYoloOutput);
+  friend class DetectorTrackerTest_PostProcessYoloOutput_Test;
  public:
   /**
    * @brief Constructor for detector-tracker with dependency injection.
