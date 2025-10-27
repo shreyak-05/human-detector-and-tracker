@@ -33,11 +33,12 @@ struct GroundPoint {
 };
 
 /**
- * @brief 3D detection with position.
+ * @brief 3D detection with position and 2D bounding box.
  */
 struct Detection3D {
-  int detection_id;    ///< Unique detection ID
-  cv::Point3f position; ///< 3D position in camera/robot frame
+  int detection_id;       ///< Unique detection ID
+  cv::Rect bbox;          ///< 2D bounding box (x, y, width, height)
+  cv::Point3f position;   ///< 3D position in camera/robot frame
 };
 
 }  // namespace perception

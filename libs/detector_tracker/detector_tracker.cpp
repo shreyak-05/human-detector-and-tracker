@@ -47,7 +47,7 @@ std::vector<Detection3D> DetectorTracker::get_3d_positions(const cv::Mat& frame)
     // Convert to 3D
     cv::Point3f pos = transformer_->project_to_3d(center_pixel, depth);
     
-    positions.push_back({0, pos}); // TODO: Add real tracking ID
+    positions.push_back({0, det.box, pos}); // TODO: Add real tracking ID
   }
   
   return positions;
