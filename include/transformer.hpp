@@ -1,6 +1,15 @@
+/**
+ * @file transformer.hpp
+ * @brief 3D transformation utilities for camera coordinate conversion
+ * @author Shreya Kalyanaraman
+ * @author Tirth Sadaria
+*/
+
 #pragma once
 #include <opencv2/opencv.hpp>
+#include <memory>
 
+#include "itransformer.hpp"
 #include "perception_types.hpp"
 
 namespace perception {
@@ -8,7 +17,7 @@ namespace perception {
 /**
  * @brief Projects 2D pixels to 3D robot coordinates.
  */
-class Transformer3D {
+class Transformer3D : public ITransformer {
  public:
   /**
    * @brief Camera intrinsic parameters.
@@ -26,6 +35,20 @@ class Transformer3D {
    * @param T_cam_to_robot 4x4 transformation matrix
    */
   Transformer3D(const Intrinsics& K, const cv::Matx44f& T_cam_to_robot);
+
+  /**
+   * @brief Constructor for 3D transformer with camera matrix.
+   * @param camera_matrix 3x3 camera intrinsic matrix containing fx, fy, cx, cy
+   */
+  Transformer3D(const cv::Mat& camera_matrix);
+
+  /**
+   * @brief Project 2D pixel to 3D point using depth.
+   * @param pixel 2D pixel coordinates (u, v)
+   * @param depth Depth value in meters
+   * @return 3D point in camera frame (x, y, z)
+   */
+  cv::Point3f project_to_3d(cv::Point2f pixel, float depth) override;
 
   /**
    * @brief Convert pixel to robot coordinates.
@@ -47,6 +70,7 @@ class Transformer3D {
  private:
   Intrinsics K_;                ///< Camera intrinsics
   cv::Matx44f T_cam_to_robot_;  ///< Transformation matrix
+  cv::Mat camera_matrix_;       ///< Camera intrinsic matrix
 };
 
 }  // namespace perception

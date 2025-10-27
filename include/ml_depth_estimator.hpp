@@ -1,4 +1,5 @@
 #pragma once
+#include "idepth_estimator.hpp"
 #include <opencv2/dnn.hpp>
 #include <opencv2/opencv.hpp>
 
@@ -7,7 +8,7 @@ namespace perception {
 /**
  * @brief Monocular depth estimator using ONNX models.
  */
-class MLDepthEstimator {
+class MLDepthEstimator : public IDepthEstimator {
  public:
   /**
    * @brief Constructor for depth estimator.
@@ -32,6 +33,18 @@ class MLDepthEstimator {
    * @return Normalized depth (CV_8U, 0-255)
    */
   static cv::Mat normalizeDepth(const cv::Mat& depth);
+
+  /**
+   * @brief Implementation of IDepthEstimator::get_depth.
+   * 
+   * Estimates depth at the center of the bounding box by running
+   * inference on the frame and extracting the depth value.
+   * 
+   * @param frame Input image frame
+   * @param bbox Bounding box region
+   * @return Depth value in meters
+   */
+  float get_depth(const cv::Mat& frame, cv::Rect bbox) override;
 
  private:
   cv::dnn::Net net_;  ///< DNN network

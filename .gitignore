@@ -10,6 +10,7 @@ Thumbs.db
 build/
 bin/
 out/
+dist/
 *.o
 *.obj
 *.a
@@ -18,6 +19,8 @@ out/
 *.dll
 *.pdb
 *.lib
+*.dylib
+
 
 # ========================
 # CMake & Code Coverage
@@ -41,6 +44,9 @@ codecov/
 .idea/
 *.swp
 *.swo
+.cache/
+.clangd/
+compile_commands.json
 
 # ========================
 # Logs & temporary files
@@ -48,6 +54,8 @@ codecov/
 *.log
 *.tmp
 *.bak
+*.cache
+.cache/
 
 # ========================
 # Python / Jupyter (if any scripts)
