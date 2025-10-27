@@ -10,6 +10,23 @@
 - **Shreya Kalyanaraman** (Driver)
 - **Tirth Sadaria** (Navigator)
 
+## Quick Start
+
+```bash
+# Clone and build
+git clone git@github.com:shreyak-05/human-detector-and-tracker.git
+cd human-detector-and-tracker
+git lfs pull  # Download model files
+cmake -S . -B build
+cmake --build build
+
+# Run demo
+./build/app/demo camera
+
+# Run tests
+./build/test/run_tests
+```
+
 ## Overview
 
 This module provides real-time human detection and tracking for Acme Robotics' autonomous mobile robot platform. Using **YOLOv8 neural networks** and **monocular depth estimation**, the system delivers 3D human positions in robot coordinates for safe navigation.
@@ -17,8 +34,10 @@ This module provides real-time human detection and tracking for Acme Robotics' a
 **Key Features:**
 - Real-time human detection with YOLOv8 ONNX models
 - Persistent tracking using IoU-based multi-object tracking
-- 3D position estimation via monocular depth networks (MiDaS/Depth Anything)
+- 3D position estimation via monocular depth networks (Depth Anything V2)
 - Direct integration with robot navigation systems
+- Modular architecture with dependency injection for testability
+- 90%+ code coverage with comprehensive unit tests
 
 
 ## Project Video
@@ -45,13 +64,45 @@ This module provides real-time human detection and tracking for Acme Robotics' a
 - **Integration complexity with existing robot systems**: Design clean interfaces, extensive documentation, modular architecture
 
 
+## Architecture
+
+The system is built using **Dependency Injection** and **Interface-Based Design** for maximum testability and modularity. The central `DetectorTracker` class orchestrates the pipeline by delegating to four abstract interfaces:
+
+| Component | Interface | Implementation | Role |
+|-----------|-----------|----------------|------|
+| **Orchestrator** | - | `DetectorTracker` | Coordinates all components to produce 3D detections |
+| **Preprocessor** | `IPreprocessor` | `Preprocessor` | Converts raw frames (e.g., 1920×1080) to 4D blobs (640×640) |
+| **Inference** | `INetwork` | `OnnxNetwork` | Runs YOLOv8 ONNX model for object detection |
+| **Depth** | `IDepthEstimator` | `MLDepthEstimator` | Estimates depth using Depth Anything V2 |
+| **Transform** | `ITransformer` | `Transformer3D` | Converts 2D pixel + depth to 3D coordinates using pinhole camera model |
+
+### Why This Design?
+
+**Testability**: Each component can be replaced with a mock implementation during unit testing. For example, `OnnxNetwork` (real ONNX inference) is replaced with `MockNetwork` (returns predefined outputs) in tests, allowing us to verify `DetectorTracker`'s logic without requiring GPU, video files, or model files.
+
+**Modularity**: Components are interchangeable. You can swap the depth estimator from monocular to stereo vision without changing any other code.
+
+**Production-Ready**: In `main.cpp`, we inject the *real* implementations, creating a complete production pipeline.
+
 ## Design
 
-### UML Class Diagram
-![UML Class Diagram](docs/UML.png)
-
 ### Activity Diagram
-![Activity Diagram](docs/Activity_diagram.png)
+![Activity Diagram](UML/ActivityDiagram.png)
+
+### UML Class Diagram
+![UML Class Diagram](UML/ClassDiagram.png)
+
+### Sequence Diagram
+![Sequence Diagram](UML/SequenceDiagram.png)
+
+## Data Flow
+
+When `get_3d_positions(frame)` is called:
+
+1. **2D Detection**: Preprocess frame → Run YOLO inference → Post-process with NMS
+2. **Depth Estimation**: For each detection, estimate depth at bbox center using Depth Anything V2
+3. **3D Transformation**: Convert 2D pixel (u,v) + depth → 3D point (x,y,z) using camera intrinsics
+4. **Output**: Return vector of `Detection3D` containing bbox and 3D position in robot frame
 
 ## Development Process
 
@@ -67,64 +118,188 @@ This module provides real-time human detection and tracking for Acme Robotics' a
 ## Quad Chart
 [Quad Chart](docs/ENPM700_Mid_Term_Phase0_Group3_Quad_Chart.pdf)
 
-## Tools and Technologies Used
-
-- **Ubuntu 20.04+ (LTS)**
-- **C++17**
-- **CMake 3.12+**
-- **OpenCV 4.x** (DNN module)
-- **GitHub Actions CI**
-- **CodeCov** (Coverage reporting)
-- **Google Test/Mock** (Unit testing)
-- **Doxygen** (Documentation)
-
-## Dependencies with Licenses
+## Dependencies
 
 | **Dependency** | **Version** | **License** |
 |:---------------|:------------|:------------|
-| OpenCV | 4.x | Apache 2.0 License |
+| C++ | C++17 or higher | - |
+| CMake | 3.14+ | BSD 3-Clause License |
+| OpenCV | 4.6.0+ (with DNN module) | Apache 2.0 License |
 | GoogleTest | 1.10+ | BSD 3-Clause License |
-| CMake | 3.12+ | BSD 3-Clause License |
+| Git LFS | Latest | GPL 2.0 |
 
-## Dataset
+**⚠️ Important**: The default OpenCV on Ubuntu 22.04 (4.5.4) is **not compatible** with the required ONNX models. You must build OpenCV 4.6.0 or newer from source.
 
-We are using **YOLO pre-trained models** and **depth estimation networks** trained on standard datasets:
-- **YOLO models**: Trained on COCO dataset (person class)
-- **Depth networks**: Trained on MiDaS/NYU Depth datasets
-- **Test data**: Custom robot environment videos and standard benchmark datasets
+## Installation
 
-## Build Files
+### 1. Clone the Repository
 
-### Clone
 ```bash
-
 git clone git@github.com:shreyak-05/human-detector-and-tracker.git
 cd human-detector-and-tracker
 ```
 
----
+### 2. Install Git LFS and Pull Models
 
-### Build & Test
+The `.onnx` model files are stored using Git LFS. You must install and enable it:
 
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+# Install Git LFS
+sudo apt install git-lfs
+
+# Enable LFS in this repo
+git lfs install
+
+# Pull the large model files
+git lfs pull
+```
+
+### 3. Install OpenCV 4.6.0+ (if not already installed)
+
+Follow the [OpenCV installation guide](https://docs.opencv.org/4.6.0/d7/d9f/tutorial_linux_install.html) or use the CMake finder:
+
+```bash
+# Check your OpenCV version
+pkg-config --modversion opencv4
+
+# If below 4.6.0, you need to build from source
+```
+
+### 4. Build the Project
+
+```bash
+# Configure CMake
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+# Build all targets
 cmake --build build
 
-# Run unit tests
-./build/test/cpp-check
+# Or build specific targets
+cmake --build build --target demo          # Build main application
+cmake --build build --target run_tests     # Build tests
+cmake --build build --target app_coverage  # Build with coverage
 ```
+
+## Usage
+
+### Run the Demo Application
+
+The demo supports multiple input sources:
+
+```bash
+# Run from webcam (default device 0)
+./build/app/demo camera
+
+# Run from test video (models/test_video.mp4)
+./build/app/demo test_video
+
+# Run from any video file
+./build/app/demo /path/to/your/video.mp4
+
+# Run from test image
+./build/app/demo test_image
+```
+
+### Run Unit Tests
+
+```bash
+# Run all tests
+./build/test/run_tests
+
+# Run with verbose output
+./build/test/run_tests --gtest_output=xml
+```
+
+### Generate Code Coverage Report
+
+```bash
+# Build with coverage instrumentation
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build --target test_coverage
+
+# View coverage report
+# Open build/app/html/index.html in a browser
+```
+
+### Run Static Analysis
+
+```bash
+# Run cppcheck analysis
+cmake --build build --target cpp-check
+
+# View results
+cat results/cppcheck.txt
+```
+
+### Code Formatting
+
+```bash
+clang-format -i --style=Google $(find . -name "*.cpp" -o -name "*.hpp" | grep -v "/build/")
+```
+
+## Dataset Information
+
+We are using **pre-trained models** and datasets:
+
+- **YOLO models**: YOLOv8n trained on COCO dataset (person class only)
+- **Depth networks**: Depth Anything V2 trained on diverse depth datasets
+- **Test data**: Custom robot environment videos for validation
+
+## Tools and Technologies
+
+- **Ubuntu 20.04+ (LTS)**
+- **C++17**
+- **CMake 3.14+**
+- **OpenCV 4.6.0+** (DNN module with ONNX support)
+- **GitHub Actions CI** (automated testing)
+- **CodeCov** (code coverage reporting)
+- **Google Test/Mock** (unit testing framework)
+- **Doxygen** (API documentation generation)
+- **cppcheck** (static analysis)
+
+## Project Status
+
+### ✅ Completed (Phase 0)
+
+- Core architecture with dependency injection
+- Interface-based design for modularity
+- Unit testing framework with 90%+ coverage
+- CI/CD pipeline with GitHub Actions
+- UML documentation (class, sequence, activity diagrams)
+- YOLOv8 integration for 2D detection
+- Post-processing with NMS and confidence filtering
+- Integration with Depth Anything V2 model
+- 3D coordinate transformation framework
+
+### 🚧 In Progress / Known Issues (Phase 2)
+
+The following features are partially implemented or require completion:
+
+1. **Depth Estimation Implementation** (`ml_depth_estimator.cpp`): The `infer()` method currently returns a black image. This needs proper ONNX inference implementation.
+2. **IoU Tracking Logic** (`detector_tracker.cpp`): The `iou()` and `associate()` methods are stubs, causing all detections to get ID=0.
+3. **Robot Frame Transformation** (`transformer.cpp`): The `pixelToRobot()` method requires camera-to-robot transformation matrix implementation.
+4. **Unit Tests for Depth Estimator**: Test coverage for `MLDepthEstimator` is incomplete.
+
+### 📋 Phase 2 Backlog
+
+- [ ] Implement depth estimation inference pipeline
+- [ ] Implement IoU-based multi-object tracking
+- [ ] Implement robot frame coordinate transformation
+- [ ] Add depth visualization utilities
+- [ ] Complete unit tests for all components
+- [ ] Add performance benchmarking
+- [ ] Add ROS2 integration support
+
+## Contributing
+
+This is an academic project for ENPM700. For questions or collaborations, please contact:
+- **Shreya Kalyanaraman** (shreyak@umd.edu)
+- **Tirth Sadaria** (tirths@umd.edu)
 
 ---
 
-### Static Analysis (cppcheck) & Formatting
+**License**: See LICENSE file for details.
 
-```bash
-# Static analysis (save to results/)
-mkdir -p results
-cppcheck --enable=all --inline-suppr --error-exitcode=1          --suppress=missingIncludeSystem --suppress=unknownMacro          -I libs/lib1          --std=c++17 --language=c++          --project=build/compile_commands.json          -i build/_deps          2> results/cppcheck.txt
-
-# Formatting
-clang-format -i --style=Google $(find . -name *.cpp -o -name *.hpp | grep -v "/build/")
-```
+**Built for**: ENPM700 - Advanced Individual Project | University of Maryland, College Park
 
 ---
