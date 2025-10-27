@@ -61,8 +61,10 @@ This module provides real-time human detection and tracking for Acme Robotics' a
 [Software Plan](docs/Midterm_Phase0_Group3_doc.pdf)
 
 ## Product Backlog
-[Initial Product Backlog](docs/_ENPM700-AIP-Mid-term-project-Group3.xlsx)
+[Initial Product Backlog](https://docs.google.com/spreadsheets/d/1IM-xvcocttc4i5XZVrW3Yo8iH0jAUDamT1dSvXJd6_k/edit?usp=sharing)
 
+## Sprint-1 Document
+[Sprint Document](https://docs.google.com/document/d/1fMpWl6SluhpQ1LkTb-6vp8wfKV5AaToe3W1v8zkWFfc/edit?usp=sharing)
 
 ## Quad Chart
 [Quad Chart](docs/ENPM700_Mid_Term_Phase0_Group3_Quad_Chart.pdf)
