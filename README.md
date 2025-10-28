@@ -42,7 +42,8 @@ This module provides real-time human detection and tracking for Acme Robotics' a
 
 ## Project Video
 
-[Watch our 3-minute design presentation](https://youtu.be/bDlo0ityvEo)
+[Phase-0 video](https://youtu.be/bDlo0ityvEo)
+[Phase-1 video](https://youtu.be/hidSe_sSeDY)
 
 ## Deliverables
 
