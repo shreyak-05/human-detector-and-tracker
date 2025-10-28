@@ -130,7 +130,7 @@ When `get_3d_positions(frame)` is called:
 | GoogleTest | 1.10+ | BSD 3-Clause License |
 | Git LFS | Latest | GPL 2.0 |
 
-**⚠️ Important**: The default OpenCV on Ubuntu 22.04 (4.5.4) is **not compatible** with the required ONNX models. You must build OpenCV 4.6.0 or newer from source.
+**Important**: The default OpenCV on Ubuntu 22.04 (4.5.4) is **not compatible** with the required ONNX models. You must build OpenCV 4.6.0 or newer from source.
 
 ## Installation
 
@@ -261,7 +261,7 @@ We are using **pre-trained models** and datasets:
 
 ## Project Status
 
-### ✅ Completed (Phase 0)
+### Completed (Phase 0)
 
 - Core architecture with dependency injection
 - Interface-based design for modularity
@@ -273,7 +273,7 @@ We are using **pre-trained models** and datasets:
 - Integration with Depth Anything V2 model
 - 3D coordinate transformation framework
 
-### 🚧 In Progress / Known Issues (Phase 2)
+### In Progress / Known Issues (Phase 2)
 
 The following features are partially implemented or require completion:
 
@@ -282,7 +282,7 @@ The following features are partially implemented or require completion:
 3. **Robot Frame Transformation** (`transformer.cpp`): The `pixelToRobot()` method requires camera-to-robot transformation matrix implementation.
 4. **Unit Tests for Depth Estimator**: Test coverage for `MLDepthEstimator` is incomplete.
 
-### 📋 Phase 2 Backlog
+### Phase 2 Backlog
 
 - [ ] Implement depth estimation inference pipeline
 - [ ] Implement IoU-based multi-object tracking
