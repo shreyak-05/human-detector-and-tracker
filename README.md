@@ -295,13 +295,13 @@ The following features are partially implemented or require completion:
 ## Contributing
 
 This is an academic project for ENPM700. For questions or collaborations, please contact:
-- **Shreya Kalyanaraman** (shreyak@umd.edu)
-- **Tirth Sadaria** (tirths@umd.edu)
+- **Shreya Kalyanaraman** (shreya05@umd.edu)
+- **Tirth Sadaria** (tsadaria@umd.edu)
 
 ---
 
 **License**: See LICENSE file for details.
 
-**Built for**: ENPM700 - Advanced Individual Project | University of Maryland, College Park
+**Built for**: ENPM700 - Software Development for Robotics | University of Maryland, College Park
 
 ---
