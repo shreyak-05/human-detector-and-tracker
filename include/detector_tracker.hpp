@@ -134,7 +134,9 @@ class DetectorTracker {
    * @param conf_thresh Confidence threshold for filtering (e.g., 0.5)
    * @return Vector of filtered and processed detections
    */
-  std::vector<Detection> post_process(const cv::Mat& output, float conf_thresh) const;
+  std::vector<Detection> post_process(const cv::Mat& output, 
+                                       int img_width, int img_height,
+                                       float conf_thresh) const;
 
  private:
 

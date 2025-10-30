@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
     // Instantiate all concrete classes using std::make_shared
     auto preprocessor = std::make_shared<Preprocessor>(yolo_input_size.width, yolo_input_size.height);
     auto detector_network = std::make_shared<OnnxNetwork>(detector_path);
-    auto depth_estimator = std::make_shared<MLDepthEstimator>(depth_path);
+    auto depth_estimator = std::make_shared<MLDepthEstimator>(depth_path, 518, 518, false);
     auto transformer = std::make_shared<Transformer3D>(camera_matrix);
     
     std::cout << "Creating HumanDetector with injected dependencies..." << std::endl;
