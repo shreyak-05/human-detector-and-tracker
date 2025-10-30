@@ -128,10 +128,13 @@ When `get_3d_positions(frame)` is called:
 | C++ | C++17 or higher | - |
 | CMake | 3.14+ | BSD 3-Clause License |
 | OpenCV | 4.6.0+ (with DNN module) | Apache 2.0 License |
+| ONNX Runtime | 1.16.3+ | MIT License |
 | GoogleTest | 1.10+ | BSD 3-Clause License |
 | Git LFS | Latest | GPL 2.0 |
 
-**Important**: The default OpenCV on Ubuntu 22.04 (4.5.4) is **not compatible** with the required ONNX models. You must build OpenCV 4.6.0 or newer from source.
+**Important**: 
+- The default OpenCV on Ubuntu 22.04 (4.5.4) is **not compatible** with the required ONNX models. You must build OpenCV 4.6.0 or newer from source.
+- ONNX Runtime is required for Depth Anything V2 model inference (custom operators not supported by OpenCV DNN).
 
 ## Installation
 
@@ -157,7 +160,24 @@ git lfs install
 git lfs pull
 ```
 
-### 3. Install OpenCV 4.6.0+ (if not already installed)
+### 3. Install ONNX Runtime
+
+The project requires ONNX Runtime for Depth Anything V2 model inference:
+
+```bash
+# Download ONNX Runtime for Linux
+cd human-detector-and-tracker
+wget https://github.com/microsoft/onnxruntime/releases/download/v1.16.3/onnxruntime-linux-x64-1.16.3.tgz
+
+# Extract to project directory
+tar -xzf onnxruntime-linux-x64-1.16.3.tgz
+mv onnxruntime-linux-x64-1.16.3 onnxruntime
+
+# Clean up
+rm onnxruntime-linux-x64-1.16.3.tgz
+```
+
+### 4. Install OpenCV 4.6.0+ (if not already installed)
 
 Follow the [OpenCV installation guide](https://docs.opencv.org/4.6.0/d7/d9f/tutorial_linux_install.html) or use the CMake finder:
 
@@ -168,7 +188,7 @@ pkg-config --modversion opencv4
 # If below 4.6.0, you need to build from source
 ```
 
-### 4. Build the Project
+### 5. Build the Project
 
 ```bash
 # Configure CMake

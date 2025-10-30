@@ -20,7 +20,14 @@ set(ONNXRUNTIME_LIB "${ONNXRUNTIME_ROOT_PATH}/lib/libonnxruntime.so")
 
 # Check if ONNX Runtime exists
 if(NOT EXISTS ${ONNXRUNTIME_LIB})
-    message(FATAL_ERROR "ONNX Runtime library not found at ${ONNXRUNTIME_LIB}")
+    message(FATAL_ERROR "ONNX Runtime library not found at ${ONNXRUNTIME_LIB}
+
+Please install ONNX Runtime:
+1. Download: wget https://github.com/microsoft/onnxruntime/releases/download/v1.16.3/onnxruntime-linux-x64-1.16.3.tgz
+2. Extract: tar -xzf onnxruntime-linux-x64-1.16.3.tgz
+3. Rename: mv onnxruntime-linux-x64-1.16.3 onnxruntime
+
+See README.md for detailed installation instructions.")
 endif()
 
 message(STATUS "Found ONNX Runtime: ${ONNXRUNTIME_LIB}")

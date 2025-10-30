@@ -21,6 +21,12 @@ dist/
 *.lib
 *.dylib
 
+# ========================
+# Third-party libraries (large binaries)
+# ========================
+onnxruntime/
+results/
+
 
 # ========================
 # CMake & Code Coverage
