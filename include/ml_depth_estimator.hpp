@@ -16,8 +16,8 @@
 
 #pragma once
 #include "idepth_estimator.hpp"
-#include <opencv2/dnn.hpp>
 #include <opencv2/opencv.hpp>
+#include <onnxruntime_cxx_api.h>
 
 namespace perception {
 
@@ -63,7 +63,10 @@ class MLDepthEstimator : public IDepthEstimator {
   float get_depth(const cv::Mat& frame, cv::Rect bbox) override;
 
  private:
-  cv::dnn::Net net_;  ///< DNN network
+  Ort::Env env_;                   ///< ONNX Runtime environment
+  Ort::SessionOptions session_options_;  ///< Session options
+  std::unique_ptr<Ort::Session> session_; ///< ONNX Runtime session
+  Ort::MemoryInfo memory_info_;    ///< Memory info
   int input_w_;       ///< Input width
   int input_h_;       ///< Input height
 };

@@ -24,6 +24,7 @@
 #include "detector_tracker.hpp"
 
 #include <algorithm>
+#include <iostream>
 using namespace cv;
 using namespace perception;
 
@@ -40,9 +41,18 @@ DetectorTracker::DetectorTracker(std::shared_ptr<IPreprocessor> preprocessor,
 }
 
 std::vector<Detection> DetectorTracker::detect(const cv::Mat& frame) {
+  std::cout << "DetectorTracker::detect() - Frame size: " << frame.size() << std::endl;
+  
   cv::Mat blob = preprocessor_->process(frame);
+  std::cout << "DetectorTracker::detect() - Blob size: " << blob.size() << std::endl;
+  
   cv::Mat output = network_->forward(blob);
-  return post_process(output, confidence_threshold_);
+  std::cout << "DetectorTracker::detect() - Network output size: " << output.size() << std::endl;
+  
+  auto detections = post_process(output, confidence_threshold_);
+  std::cout << "DetectorTracker::detect() - Found " << detections.size() << " detections with confidence > " << confidence_threshold_ << std::endl;
+  
+  return detections;
 }
 
 std::vector<Detection3D> DetectorTracker::get_3d_positions(const cv::Mat& frame) {
@@ -70,13 +80,21 @@ std::vector<Detection3D> DetectorTracker::get_3d_positions(const cv::Mat& frame)
 }
 
 std::vector<Detection> DetectorTracker::post_process(const cv::Mat& output, float conf_thresh) const {
+  std::cout << "post_process() - Output dimensions: " << output.rows << "x" << output.cols << std::endl;
+  std::cout << "post_process() - Confidence threshold: " << conf_thresh << std::endl;
+  
   std::vector<cv::Rect> boxes;
   std::vector<float> confidences;
+  
+  int valid_detections = 0;
   
   // Iterate columns (detections)
   for (int i = 0; i < output.cols; ++i) {
     float conf = output.at<float>(4, i);
     if (conf < conf_thresh) continue;
+    
+    valid_detections++;
+    std::cout << "Valid detection " << valid_detections << ": conf=" << conf << std::endl;
     
     float cx = output.at<float>(0, i);
     float cy = output.at<float>(1, i);
@@ -89,6 +107,8 @@ std::vector<Detection> DetectorTracker::post_process(const cv::Mat& output, floa
     boxes.emplace_back(x, y, static_cast<int>(w), static_cast<int>(h));
     confidences.push_back(conf);
   }
+  
+  std::cout << "post_process() - Found " << valid_detections << " detections above threshold" << std::endl;
   
   std::vector<int> indices;
   cv::dnn::NMSBoxes(boxes, confidences, conf_thresh, 0.4f, indices);

@@ -34,7 +34,7 @@ int main(int argc, char** argv) {
   // Define model paths and constants
   // Note: Run from project root directory
   const std::string detector_path = "models/yolov8n.onnx";
-  const std::string depth_path = "models/depth_anything_small.onnx";
+  const std::string depth_path = "models/depth_anything_v2_vits.onnx";
   const Size yolo_input_size(640, 640);
   
   // IMPORTANT: Replace with your REAL camera matrix

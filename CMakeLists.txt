@@ -13,6 +13,39 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Find OpenCV dependency
 find_package(OpenCV 4 REQUIRED)
 
+# Set up ONNX Runtime
+set(ONNXRUNTIME_ROOT_PATH "${CMAKE_SOURCE_DIR}/onnxruntime")
+set(ONNXRUNTIME_INCLUDE_DIRS "${ONNXRUNTIME_ROOT_PATH}/include")
+set(ONNXRUNTIME_LIB "${ONNXRUNTIME_ROOT_PATH}/lib/libonnxruntime.so")
+
+# Check if ONNX Runtime exists
+if(NOT EXISTS ${ONNXRUNTIME_LIB})
+    message(FATAL_ERROR "ONNX Runtime library not found at ${ONNXRUNTIME_LIB}")
+endif()
+
+message(STATUS "Found ONNX Runtime: ${ONNXRUNTIME_LIB}")
+message(STATUS "ONNX Runtime includes: ${ONNXRUNTIME_INCLUDE_DIRS}")
+# Find the library file
+# --- ONNX Runtime setup (manual import from pip installation) ---
+execute_process(
+  COMMAND python3 -c "import onnxruntime, os; print(os.path.dirname(onnxruntime.__file__))"
+  OUTPUT_VARIABLE ONNXRUNTIME_DIR
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+# pip installs usually place libs under onnxruntime/capi/
+set(ONNXRUNTIME_LIB ${ONNXRUNTIME_DIR}/capi/libonnxruntime.so.1.19.2)
+set(ONNXRUNTIME_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/onnxruntime/include)
+
+if(EXISTS ${ONNXRUNTIME_LIB})
+  message(STATUS "✅ Found ONNX Runtime at: ${ONNXRUNTIME_LIB}")
+else()
+  message(FATAL_ERROR "❌ ONNX Runtime library not found — expected at ${ONNXRUNTIME_LIB}")
+endif()
+
+# Make the include directory and library available
+include_directories(${ONNXRUNTIME_INCLUDE_DIRS})
+
 # declares a dependency on GoogleTest which is downloaded from GitHub
 include(FetchContent)
 FetchContent_Declare(
