@@ -173,6 +173,7 @@ class DetectorTracker {
   float confidence_threshold_;                     ///< Confidence threshold for filtering
   int next_id_{0};                                  ///< Next available track ID
   std::vector<Track> tracks_;                       ///< Currently active tracks
+  int frame_count_{0};                              ///< Frame counter for optimized logging
 };
 
 }  // namespace perception

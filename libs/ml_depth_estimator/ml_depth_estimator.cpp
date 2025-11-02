@@ -101,20 +101,31 @@ float MLDepthEstimator::get_depth(const Mat& frame, Rect bbox) {
   // Get the center of the bounding box
   cv::Point2f center(bbox.x + bbox.width / 2.0f, bbox.y + bbox.height / 2.0f);
   
-  // Use full frame for better depth estimation context
-  Mat depth_map = infer(frame);
+  // Use cached depth map if available
+  if (cached_depth_map_.empty() || cached_depth_frame_id_ != current_frame_id_) {
+    cached_depth_map_ = infer(frame);
+    cached_depth_frame_id_ = current_frame_id_;
+  }
   
-  if (depth_map.empty()) {
+  if (cached_depth_map_.empty()) {
     return 1.0f;  // Default depth of 1 meter
   }
   
   // Ensure coordinates are within bounds
-  int center_x = std::max(0, std::min(static_cast<int>(center.x), depth_map.cols - 1));
-  int center_y = std::max(0, std::min(static_cast<int>(center.y), depth_map.rows - 1));
+  int center_x = std::max(0, std::min(static_cast<int>(center.x), cached_depth_map_.cols - 1));
+  int center_y = std::max(0, std::min(static_cast<int>(center.y), cached_depth_map_.rows - 1));
   
   // Extract the raw depth value at the center
-  float raw_depth = depth_map.at<float>(center_y, center_x);
+  float raw_depth = cached_depth_map_.at<float>(center_y, center_x);
   
   // Return raw depth value from Depth Anything V2
   return std::abs(raw_depth);
+}
+
+void MLDepthEstimator::set_frame_id(int frame_id) {
+  current_frame_id_ = frame_id;
+}
+
+Mat MLDepthEstimator::get_cached_depth_map() const {
+  return cached_depth_map_;
 }

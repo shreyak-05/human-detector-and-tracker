@@ -62,6 +62,18 @@ class MLDepthEstimator : public IDepthEstimator {
    */
   float get_depth(const cv::Mat& frame, cv::Rect bbox) override;
 
+  /**
+   * @brief Set current frame ID for caching.
+   * @param frame_id Current frame number
+   */
+  void set_frame_id(int frame_id);
+
+  /**
+   * @brief Get cached depth map.
+   * @return Cached depth map
+   */
+  cv::Mat get_cached_depth_map() const;
+
  private:
   Ort::Env env_;                   ///< ONNX Runtime environment
   Ort::SessionOptions session_options_;  ///< Session options
@@ -69,6 +81,11 @@ class MLDepthEstimator : public IDepthEstimator {
   Ort::MemoryInfo memory_info_;    ///< Memory info
   int input_w_;       ///< Input width
   int input_h_;       ///< Input height
+  
+  // Caching for performance
+  cv::Mat cached_depth_map_;       ///< Cached depth map
+  int cached_depth_frame_id_ = -1; ///< Frame ID of cached depth map
+  int current_frame_id_ = 0;       ///< Current frame ID
 };
 
 }  // namespace perception

@@ -19,6 +19,8 @@
 #include <string>
 #include <fstream>
 #include <cstdlib>
+#include <chrono>
+#include <iomanip>
 
 #include <opencv2/opencv.hpp>
 #include "detector_tracker.hpp"
@@ -31,250 +33,156 @@ using namespace cv;
 using namespace perception;
 
 int main(int argc, char** argv) {
-  // Define model paths and constants
-  // Note: Run from project root directory
   const std::string detector_path = "models/yolov8n.onnx";
   const std::string depth_path = "models/depth_anything_v2_vits.onnx";
   const Size yolo_input_size(640, 640);
-  
-  // IMPORTANT: Replace with your REAL camera matrix
   Mat camera_matrix = (Mat_<double>(3, 3) << 500.0, 0, 320.0, 0, 500.0, 240.0, 0, 0, 1.0);
   
-  // Parse command-line arguments
   enum InputMode { CAMERA, VIDEO, IMAGE };
   InputMode mode = CAMERA;
   std::string input_path;
   
   if (argc > 1) {
-    std::string arg = std::string(argv[1]);
-    
-    if (arg == "camera" || arg == "cam") {
-      mode = CAMERA;
-      std::cout << "Mode: Camera" << std::endl;
-    } else if (arg == "test_video") {
+    std::string arg = argv[1];
+    if (arg == "test_video") {
       mode = VIDEO;
       input_path = "models/test_video.mp4";
-      std::cout << "Mode: Test Video (" << input_path << ")" << std::endl;
     } else if (arg == "test_image") {
       mode = IMAGE;
-      input_path = "models/test_image.jpg";  // You can add a test image
-      std::cout << "Mode: Test Image (" << input_path << ")" << std::endl;
-    } else {
-      // Check if it's a video or image by extension
+      input_path = "models/test_image.jpg";
+    } else if (arg.find('.') != std::string::npos) {
       std::string ext = arg.substr(arg.find_last_of(".") + 1);
-      if (ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "bmp") {
-        mode = IMAGE;
-        input_path = arg;
-        std::cout << "Mode: Image File" << std::endl;
-      } else {
-        mode = VIDEO;
-        input_path = arg;
-        std::cout << "Mode: Video File" << std::endl;
-      }
+      mode = (ext == "jpg" || ext == "jpeg" || ext == "png" || ext == "bmp") ? IMAGE : VIDEO;
+      input_path = arg;
     }
-  } else {
-    std::cout << "Usage: " << argv[0] << " [mode]" << std::endl;
-    std::cout << "\nAvailable modes:" << std::endl;
-    std::cout << "  1. camera       - Use webcam (default if no argument)" << std::endl;
-    std::cout << "  2. test_video   - Use models/test_video.mp4" << std::endl;
-    std::cout << "  3. test_image   - Use models/test_image.jpg" << std::endl;
-    std::cout << "  4. <video_path> - Custom video file" << std::endl;
-    std::cout << "  5. <image_path> - Custom image file" << std::endl;
-    std::cout << "\nExamples:" << std::endl;
-    std::cout << "  " << argv[0] << " camera              # Use webcam" << std::endl;
-    std::cout << "  " << argv[0] << " test_video          # Use test video" << std::endl;
-    std::cout << "  " << argv[0] << " path/to/image.jpg   # Process image" << std::endl;
-    std::cout << "  " << argv[0] << " path/to/video.mp4   # Process video" << std::endl;
-    std::cout << "\nDefaulting to camera mode..." << std::endl;
   }
   
   try {
-    // Instantiate all concrete classes using std::make_shared
     auto preprocessor = std::make_shared<Preprocessor>(yolo_input_size.width, yolo_input_size.height);
     auto detector_network = std::make_shared<OnnxNetwork>(detector_path);
     auto depth_estimator = std::make_shared<MLDepthEstimator>(depth_path, 518, 518, false);
     auto transformer = std::make_shared<Transformer3D>(camera_matrix);
-    
-    // Create the HumanDetector by injecting all dependencies
     DetectorTracker detector(preprocessor, detector_network, depth_estimator, transformer, 0.5f);
     
-    std::cout << "Human detector loaded successfully." << std::endl;
-    
-    // Determine input source based on mode
     Mat frame;
     int frame_count = 0;
     
     if (mode == IMAGE) {
-      // Load image from file
-      std::cout << "Loading image from: " << input_path << std::endl;
       frame = cv::imread(input_path);
-      
       if (frame.empty()) {
         std::cerr << "Error: Cannot open image file: " << input_path << std::endl;
         return -1;
       }
       
-      std::cout << "Image loaded successfully. Press 'q' to quit." << std::endl;
-      
-      std::cout << "=== Processing Image ===" << std::endl;
-      
-      // Run the full 3D detection pipeline
       auto positions = detector.get_3d_positions(frame);
       
-      // Display results summary
-      std::cout << "\n=== Detection Results ===" << std::endl;
-      for (size_t i = 0; i < positions.size(); i++) {
-        const auto& det = positions[i];
-        std::cout << "Human " << i << ": Position(" << std::fixed << std::setprecision(2) 
-                  << det.position.x << ", " << det.position.y << ", " << det.position.z 
-                  << ") Box(" << det.bbox.x << "," << det.bbox.y << "," 
-                  << det.bbox.width << "x" << det.bbox.height << ")" << std::endl;
-      }
-      std::cout << "=========================" << std::endl;
-      
-      // Draw the results on the frame
-      for (size_t i = 0; i < positions.size(); i++) {
-        const auto& det = positions[i];
-        
-        // Draw bounding box
+      // Draw results
+      for (const auto& det : positions) {
         cv::rectangle(frame, det.bbox, cv::Scalar(0, 255, 0), 2);
-        
-        // Add text overlay
         std::string text = cv::format("ID %d: (%.1fm, %.1fm, %.1fm)",
                                        det.detection_id, det.position.x, det.position.y, det.position.z);
-        
-        // Position text above the bounding box
         cv::Point text_origin(det.bbox.x, det.bbox.y - 10);
         cv::putText(frame, text, text_origin, cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 255, 0), 2);
       }
       
-      // Generate depth visualization
-      cv::Mat depth_map = depth_estimator->infer(frame);
-      
-      // Convert depth to color visualization
-      cv::Mat depth_vis;
-      cv::normalize(depth_map, depth_vis, 0, 255, cv::NORM_MINMAX, CV_8U);
-      cv::applyColorMap(depth_vis, depth_vis, cv::COLORMAP_JET);
-      
-      cv::imshow("Human Detector Demo", frame);
-      cv::imshow("Depth Visualization", depth_vis);
-      
-      // Ensure results directory exists
-      system("mkdir -p results");
-      
-      // Save the annotated image
-      std::string output_path = "results/output_detected.jpg";
-      cv::imwrite(output_path, frame);
-      std::cout << "Saved annotated image to: " << output_path << std::endl;
-      
-      // Save detection data to text file
-      std::ofstream output_file("results/output_detections.txt");
-      output_file << "Detection Results\n";
-      output_file << "=================\n";
-      output_file << "Input: " << input_path << "\n";
-      output_file << "Detections: " << positions.size() << "\n\n";
-      
-      for (size_t i = 0; i < positions.size(); i++) {
-        const auto& det = positions[i];
-        output_file << "Human " << i << ":\n";
-        output_file << "  Detection ID: " << det.detection_id << "\n";
-        output_file << "  Bounding Box: (" << det.bbox.x << ", " << det.bbox.y 
-                    << ", " << det.bbox.width << "x" << det.bbox.height << ")\n";
-        output_file << "  3D Position: (" << det.position.x << ", " 
-                    << det.position.y << ", " << det.position.z << ") meters\n\n";
-      }
-      output_file.close();
-      std::cout << "Saved detection data to: results/output_detections.txt" << std::endl;
-      
-      cv::waitKey(0);  // Wait for key press to close
+      cv::imshow("Human Detector", frame);
+      cv::waitKey(0);
       
     } else {
-      // Handle camera or video
       VideoCapture cap;
-      
-      if (mode == CAMERA) {
-        std::cout << "Opening camera (webcam 0)..." << std::endl;
-        cap.open(0);
-      } else {  // VIDEO
-        std::cout << "Opening video file: " << input_path << std::endl;
-        cap.open(input_path);
-      }
-      
+      cap.open(mode == CAMERA ? 0 : input_path);
       if (!cap.isOpened()) {
         std::cerr << "Error: Cannot open video source" << std::endl;
         return -1;
       }
       
-      std::cout << "Video source opened successfully. Press 'q' to quit." << std::endl;
-      
-      // Ensure results directory exists
-      system("mkdir -p results");
-      
-      // Set up video writer for output
       VideoWriter video_writer;
-      bool save_output = (mode == VIDEO);  // Save video for VIDEO mode only
-      int fourcc = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
-      double fps = cap.get(cv::CAP_PROP_FPS);
-      cv::Size frame_size((int)cap.get(cv::CAP_PROP_FRAME_WIDTH), 
-                         (int)cap.get(cv::CAP_PROP_FRAME_HEIGHT));
-      
-      if (save_output) {
-        std::string output_video = "results/output_detected.mp4";
-        video_writer.open(output_video, fourcc, fps, frame_size);
-        std::cout << "Saving output video to: " << output_video << std::endl;
+      if (mode == VIDEO) {
+        system("mkdir -p results");
+        int fourcc = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
+        double fps = cap.get(cv::CAP_PROP_FPS);
+        cv::Size frame_size((int)cap.get(cv::CAP_PROP_FRAME_WIDTH), (int)cap.get(cv::CAP_PROP_FRAME_HEIGHT));
+        video_writer.open("results/output_detected.mp4", fourcc, fps, frame_size);
       }
       
-      // Process video frames
+      std::vector<Detection3D> last_positions;
+      int depth_skip_interval = 30;  // Run depth every 30 frames for max speed
+      int detection_skip_interval = 3;  // Run detection every 3 frames
+      auto start_time = std::chrono::high_resolution_clock::now();
+      
+      // Cache for ultra-fast mode
+      std::vector<Detection> cached_detections;
+      cv::Point3f default_position(0, 0, 2.0f);
+      
       while (cap.read(frame)) {
         frame_count++;
-        std::cout << "Processing frame " << frame_count << std::endl;
         
-        // Run the full 3D detection pipeline
-        auto positions = detector.get_3d_positions(frame);
+        if (frame_count % 30 == 0) {
+          auto current_time = std::chrono::high_resolution_clock::now();
+          auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(current_time - start_time).count();
+          float fps = frame_count / (float)std::max(1, (int)elapsed);
+          std::cout << "Frame " << frame_count << " (FPS: " << std::fixed << std::setprecision(1) << fps << ")" << std::endl;
+        }
         
-        // Draw the results on the frame
-        for (size_t i = 0; i < positions.size(); i++) {
-          const auto& det = positions[i];
+        std::vector<Detection3D> positions;
+        
+        // Full processing with depth (very rarely)
+        if (frame_count % depth_skip_interval == 1) {
+          depth_estimator->set_frame_id(frame_count);
+          auto detections = detector.detect(frame);
+          cached_detections = detections;
           
-          // Display 3D position
-          std::cout << "Human " << i << " at: (" << det.position.x << ", " 
-                    << det.position.y << ", " << det.position.z << ")" << std::endl;
+          if (!detections.empty()) {
+            for (size_t i = 0; i < detections.size(); i++) {
+              const auto& det = detections[i];
+              float depth = depth_estimator->get_depth(frame, det.box);
+              cv::Point2f center_pixel(det.box.x + det.box.width / 2.0f, det.box.y + det.box.height / 2.0f);
+              cv::Point3f pos = transformer->project_to_3d(center_pixel, depth);
+              positions.push_back({static_cast<int>(i), det.box, pos});
+            }
+            last_positions = positions;
+          }
+        }
+        // Detection only (occasionally)
+        else if (frame_count % detection_skip_interval == 1) {
+          auto detections = detector.detect(frame);
+          cached_detections = detections;
           
-          // Draw bounding box
+          if (!detections.empty() && !last_positions.empty()) {
+            for (size_t i = 0; i < detections.size() && i < last_positions.size(); i++) {
+              positions.push_back({static_cast<int>(i), detections[i].box, last_positions[i].position});
+            }
+          }
+        }
+        // Ultra-fast mode: reuse everything (most frames)
+        else {
+          if (!cached_detections.empty()) {
+            cv::Point3f pos = last_positions.empty() ? default_position : last_positions[0].position;
+            for (size_t i = 0; i < cached_detections.size(); i++) {
+              positions.push_back({static_cast<int>(i), cached_detections[i].box, pos});
+            }
+          }
+        }
+        
+        // Draw results
+        for (const auto& det : positions) {
           cv::rectangle(frame, det.bbox, cv::Scalar(0, 255, 0), 2);
-          
-          // Add text overlay
           std::string text = cv::format("ID %d: (%.1fm, %.1fm, %.1fm)",
                                          det.detection_id, det.position.x, det.position.y, det.position.z);
-          
-          // Position text above the bounding box
           cv::Point text_origin(det.bbox.x, det.bbox.y - 10);
           cv::putText(frame, text, text_origin, cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 255, 0), 2);
         }
         
-        cv::imshow("Human Detector Demo", frame);
-        
-        // Write frame to output video
-        if (save_output && video_writer.isOpened()) {
-          video_writer.write(frame);
-        }
-        
+        cv::imshow("Human Detector", frame);
+        if (video_writer.isOpened()) video_writer.write(frame);
         if (cv::waitKey(1) == 'q') break;
       }
       
-      if (save_output && video_writer.isOpened()) {
-        video_writer.release();
-        std::cout << "Output video saved successfully!" << std::endl;
-      }
-      
       cap.release();
+      if (video_writer.isOpened()) video_writer.release();
     }
     cv::destroyAllWindows();
-    std::cout << "Processing completed" << std::endl;
     
-  } catch (const cv::Exception& e) {
-    std::cerr << "OpenCV Error: " << e.what() << std::endl;
-    return 1;
   } catch (const std::exception& e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return 1;

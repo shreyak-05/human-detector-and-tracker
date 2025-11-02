@@ -1,5 +1,37 @@
 /*
- * Copyright 2025 Shreya Kalyanaraman and Tirth Sadaria
+ * Copyright 2025 Shreya Kalyanaraman anstd::vector<Dstd::vector<Detection> DetectorTracker::detect(const cv::Mat& frame) {
+  frame_count_++;
+  cv::Mat blob = preprocessor_->process(fra  // Print structured summary (only very occasionally to reduce spam)
+  static int call_count = 0;
+  call_count++;
+  if (call_count % 50 == 1 && max_person_conf > 0.0f) {
+    std::cout << "Detection: " << boxes.size() << " candidates, " 
+              << indices.size() << " after NMS (max confidence: " 
+              << std::fixed << std::setprecision(3) << max_person_conf << ")" << std::endl;
+  }v::Mat output = network_->forward(blob);
+  
+  auto detections = post_process(output, frame.cols, frame.rows, confidence_threshold_);
+  
+  // Only print summary every 50 frames to reduce console spam
+  if (frame_count_ % 50 == 1) {
+    std::cout << "Found " << detections.size() << " human(s)" << std::endl;
+  }
+  
+  return detections;
+}ctorTracker::detect(const cv::Mat& frame) {
+  frame_count_++;
+  cv::Mat blob = preprocessor_->process(frame);
+  cv::Mat output = network_->forward(blob);
+  
+  auto detections = post_process(output, frame.cols, frame.rows, confidence_threshold_);
+  
+  // Only print summary every 10 frames to reduce console spam
+  if (frame_count_ % 10 == 1) {
+    std::cout << "Found " << detections.size() << " human(s)" << std::endl;
+  }
+  
+  return detections;
+}a
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,15 +69,21 @@ DetectorTracker::DetectorTracker(std::shared_ptr<IPreprocessor> preprocessor,
       network_(std::move(network)),
       depth_estimator_(std::move(depth_estimator)),
       transformer_(std::move(transformer)),
-      confidence_threshold_(confidence_threshold) {
+      confidence_threshold_(confidence_threshold),
+      frame_count_(0) {
 }
 
 std::vector<Detection> DetectorTracker::detect(const cv::Mat& frame) {
+  frame_count_++;
   cv::Mat blob = preprocessor_->process(frame);
   cv::Mat output = network_->forward(blob);
   
   auto detections = post_process(output, frame.cols, frame.rows, confidence_threshold_);
-  std::cout << "Found " << detections.size() << " human(s)" << std::endl;
+  
+  // Only print summary every 50 frames to reduce console spam further
+  if (frame_count_ % 50 == 1) {
+    std::cout << "Found " << detections.size() << " human(s)" << std::endl;
+  }
   
   return detections;
 }
@@ -154,8 +192,10 @@ std::vector<Detection> DetectorTracker::post_process(const cv::Mat& output,
   std::vector<int> indices;
   cv::dnn::NMSBoxes(boxes, confidences, conf_thresh, 0.5f, indices);
   
-  // Print structured summary
-  if (max_person_conf > 0.0f) {
+  // Print structured summary (only occasionally to reduce spam)
+  static int call_count = 0;
+  call_count++;
+  if (call_count % 10 == 1 && max_person_conf > 0.0f) {
     std::cout << "Detection: " << boxes.size() << " candidates, " 
               << indices.size() << " after NMS (max confidence: " 
               << std::fixed << std::setprecision(3) << max_person_conf << ")" << std::endl;
