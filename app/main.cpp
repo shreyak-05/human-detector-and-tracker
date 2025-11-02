@@ -121,13 +121,20 @@ int main(int argc, char** argv) {
       // Run the full 3D detection pipeline
       auto positions = detector.get_3d_positions(frame);
       
+      // Display results summary
+      std::cout << "\n=== Detection Results ===" << std::endl;
+      for (size_t i = 0; i < positions.size(); i++) {
+        const auto& det = positions[i];
+        std::cout << "Human " << i << ": Position(" << std::fixed << std::setprecision(2) 
+                  << det.position.x << ", " << det.position.y << ", " << det.position.z 
+                  << ") Box(" << det.bbox.x << "," << det.bbox.y << "," 
+                  << det.bbox.width << "x" << det.bbox.height << ")" << std::endl;
+      }
+      std::cout << "=========================" << std::endl;
+      
       // Draw the results on the frame
       for (size_t i = 0; i < positions.size(); i++) {
         const auto& det = positions[i];
-        
-        // Display 3D position in structured format
-        std::cout << "Human " << i << ": 3D position (" << std::fixed << std::setprecision(2) 
-                  << det.position.x << ", " << det.position.y << ", " << det.position.z << ") meters" << std::endl;
         
         // Draw bounding box
         cv::rectangle(frame, det.bbox, cv::Scalar(0, 255, 0), 2);

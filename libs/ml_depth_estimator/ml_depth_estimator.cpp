@@ -115,10 +115,6 @@ float MLDepthEstimator::get_depth(const Mat& frame, Rect bbox) {
   // Extract the raw depth value at the center
   float raw_depth = depth_map.at<float>(center_y, center_x);
   
-  // Debug output to see actual values
-  std::cout << "Raw depth at center: " << raw_depth << std::endl;
-  
-  // Depth Anything V2 outputs relative depth values (0-1 range typically)
-  // For now, return the raw value - proper calibration would require known distances
+  // Return raw depth value from Depth Anything V2
   return std::abs(raw_depth);
 }

@@ -56,19 +56,16 @@ std::vector<Detection3D> DetectorTracker::get_3d_positions(const cv::Mat& frame)
   
   std::vector<Detection3D> positions;
   
-  // Now, iterate and get 3D info
-  for (const auto& det : detections) {
-    // Get depth for the detection
-    float depth = depth_estimator_->get_depth(frame, det.box);
+  // Process each detection for 3D positioning
+  for (size_t i = 0; i < detections.size(); i++) {
+    const auto& det = detections[i];
     
-    // Get the pixel at the center of the bounding box
+    float depth = depth_estimator_->get_depth(frame, det.box);
     cv::Point2f center_pixel(det.box.x + det.box.width / 2.0f, 
                              det.box.y + det.box.height / 2.0f);
-    
-    // Convert to 3D
     cv::Point3f pos = transformer_->project_to_3d(center_pixel, depth);
     
-    positions.push_back({0, det.box, pos}); // TODO: Add real tracking ID
+    positions.push_back({static_cast<int>(i), det.box, pos});
   }
   
   return positions;
