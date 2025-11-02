@@ -115,10 +115,13 @@ int main(int argc, char** argv) {
       const int depth_skip_interval = 30;  // Run depth every 30 frames for max speed
       const int detection_skip_interval = 3;  // Run detection every 3 frames
       const cv::Point3f default_position(0, 0, 2.0f);
+      const float iou_threshold = 0.3f;  // IoU threshold for track association
       
       // State variables for frame processing
       std::vector<Detection3D> last_positions;
       std::vector<Detection> cached_detections;
+      std::vector<Track> active_tracks;  // Persistent tracks with IoU matching
+      int next_track_id = 1;  // Start track IDs from 1
       auto start_time = std::chrono::high_resolution_clock::now();
       int frame_count = 0;
       
@@ -137,39 +140,118 @@ int main(int argc, char** argv) {
         
         std::vector<Detection3D> positions;
         
-        // Frame processing strategy with optimization
+        // Frame processing strategy with optimization + IoU tracking
         if (frame_count % depth_skip_interval == 1) {
           // Full processing with depth estimation (expensive, rare)
           depth_estimator->set_frame_id(frame_count);
           auto detections = detector.detect(frame);
           cached_detections = detections;
           
-          if (!detections.empty()) {
-            for (size_t i = 0; i < detections.size(); i++) {
-              const auto& det = detections[i];
-              float depth = depth_estimator->get_depth(frame, det.box);
-              cv::Point2f center_pixel(det.box.x + det.box.width / 2.0f, det.box.y + det.box.height / 2.0f);
+          // Update tracks with IoU matching
+          std::vector<bool> detection_matched(detections.size(), false);
+          std::vector<bool> track_matched(active_tracks.size(), false);
+          
+          // Match detections to existing tracks using IoU
+          for (size_t i = 0; i < detections.size(); i++) {
+            float best_iou = 0.0f;
+            int best_track_idx = -1;
+            
+            for (size_t j = 0; j < active_tracks.size(); j++) {
+              if (track_matched[j]) continue;
+              
+              float current_iou = detector.iou(detections[i].box, active_tracks[j].det.box);
+              if (current_iou > best_iou && current_iou > iou_threshold) {
+                best_iou = current_iou;
+                best_track_idx = static_cast<int>(j);
+              }
+            }
+            
+            if (best_track_idx >= 0) {
+              // Update existing track
+              active_tracks[best_track_idx].det = detections[i];
+              active_tracks[best_track_idx].age++;
+              active_tracks[best_track_idx].time_since_update = 0;
+              detection_matched[i] = true;
+              track_matched[best_track_idx] = true;
+            }
+          }
+          
+          // Create new tracks for unmatched detections
+          for (size_t i = 0; i < detections.size(); i++) {
+            if (!detection_matched[i]) {
+              Track new_track;
+              new_track.id = next_track_id++;
+              new_track.det = detections[i];
+              new_track.age = 1;
+              new_track.time_since_update = 0;
+              active_tracks.push_back(new_track);
+            }
+          }
+          
+          // Remove old tracks (not updated for too long)
+          active_tracks.erase(
+            std::remove_if(active_tracks.begin(), active_tracks.end(),
+              [](Track& track) {
+                track.time_since_update++;
+                return track.time_since_update > 30;  // Remove after 30 frames
+              }),
+            active_tracks.end());
+          
+          // Create 3D positions from tracks
+          if (!active_tracks.empty()) {
+            for (const auto& track : active_tracks) {
+              float depth = depth_estimator->get_depth(frame, track.det.box);
+              cv::Point2f center_pixel(track.det.box.x + track.det.box.width / 2.0f, 
+                                       track.det.box.y + track.det.box.height / 2.0f);
               cv::Point3f pos = transformer->project_to_3d(center_pixel, depth);
-              positions.push_back({static_cast<int>(i), det.box, pos});
+              positions.push_back({track.id, track.det.box, pos});
             }
             last_positions = positions;
           }
         } else if (frame_count % detection_skip_interval == 1) {
-          // Detection only (medium cost, occasional)
+          // Detection only with track update (medium cost, occasional)
           auto detections = detector.detect(frame);
           cached_detections = detections;
           
-          if (!detections.empty() && !last_positions.empty()) {
-            for (size_t i = 0; i < detections.size() && i < last_positions.size(); i++) {
-              positions.push_back({static_cast<int>(i), detections[i].box, last_positions[i].position});
+          // Quick track update using IoU
+          for (auto& track : active_tracks) {
+            track.time_since_update++;
+            
+            // Find best matching detection
+            float best_iou = 0.0f;
+            int best_det_idx = -1;
+            for (size_t i = 0; i < detections.size(); i++) {
+              float current_iou = detector.iou(detections[i].box, track.det.box);
+              if (current_iou > best_iou && current_iou > iou_threshold) {
+                best_iou = current_iou;
+                best_det_idx = static_cast<int>(i);
+              }
+            }
+            
+            if (best_det_idx >= 0) {
+              track.det = detections[best_det_idx];
+              track.time_since_update = 0;
+            }
+          }
+          
+          // Generate positions from updated tracks
+          if (!active_tracks.empty() && !last_positions.empty()) {
+            for (const auto& track : active_tracks) {
+              if (track.time_since_update == 0) {  // Only recently updated tracks
+                // Use cached depth from last full processing
+                cv::Point3f pos = last_positions.empty() ? default_position : last_positions[0].position;
+                positions.push_back({track.id, track.det.box, pos});
+              }
             }
           }
         } else {
-          // Ultra-fast mode: reuse cached data (cheap, most frames)
-          if (!cached_detections.empty()) {
-            cv::Point3f pos = last_positions.empty() ? default_position : last_positions[0].position;
-            for (size_t i = 0; i < cached_detections.size(); i++) {
-              positions.push_back({static_cast<int>(i), cached_detections[i].box, pos});
+          // Ultra-fast mode: reuse track data (cheap, most frames)
+          if (!active_tracks.empty()) {
+            for (const auto& track : active_tracks) {
+              if (track.time_since_update < 5) {  // Only show recent tracks
+                cv::Point3f pos = last_positions.empty() ? default_position : last_positions[0].position;
+                positions.push_back({track.id, track.det.box, pos});
+              }
             }
           }
         }

@@ -131,7 +131,6 @@ class DetectorTracker {
                                        int img_width, int img_height,
                                        float conf_thresh) const;
 
- private:
   /**
    * @brief Calculate Intersection over Union between two rectangles.
    * @param a First bounding box
@@ -139,6 +138,8 @@ class DetectorTracker {
    * @return IoU score [0.0, 1.0]
    */
   float iou(const cv::Rect& a, const cv::Rect& b) const;
+
+ private:
 
   std::shared_ptr<IPreprocessor> preprocessor_;     ///< Image preprocessor for network input
   std::shared_ptr<INetwork> network_;               ///< Neural network for inference
