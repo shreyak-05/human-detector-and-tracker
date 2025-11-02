@@ -85,11 +85,6 @@ class DetectorTracker {
   /**
    * @brief Get 3D positions of detected humans.
    * 
-   * This method orchestrates the full 3D position estimation pipeline:
-   * 1. Detect humans in 2D using the detect() method to get bounding boxes
-  /**
-   * @brief Get 3D positions of detected humans.
-   * 
    * Extends detect() with depth estimation and 3D transformation.
    * 
    * @param frame Input video frame (BGR format)
