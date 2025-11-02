@@ -141,7 +141,16 @@ int main(int argc, char** argv) {
         cv::putText(frame, text, text_origin, cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 255, 0), 2);
       }
       
+      // Generate depth visualization
+      cv::Mat depth_map = depth_estimator->infer(frame);
+      
+      // Convert depth to color visualization
+      cv::Mat depth_vis;
+      cv::normalize(depth_map, depth_vis, 0, 255, cv::NORM_MINMAX, CV_8U);
+      cv::applyColorMap(depth_vis, depth_vis, cv::COLORMAP_JET);
+      
       cv::imshow("Human Detector Demo", frame);
+      cv::imshow("Depth Visualization", depth_vis);
       
       // Ensure results directory exists
       system("mkdir -p results");
