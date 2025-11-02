@@ -24,7 +24,7 @@ namespace perception {
  * @brief Detected human object.
  */
 struct Detection {
-  cv::Rect box;            ///< Bounding box (x, y, width, height)
+  cv::Rect box;            ///< Bounding box
   float confidence{0.0f};  ///< Confidence score [0.0, 1.0]
   int class_id{0};         ///< Class ID (0 = person)
 };
@@ -53,7 +53,7 @@ struct GroundPoint {
  */
 struct Detection3D {
   int detection_id;       ///< Unique detection ID
-  cv::Rect bbox;          ///< 2D bounding box (x, y, width, height)
+  cv::Rect bbox;          ///< 2D bounding box
   cv::Point3f position;   ///< 3D position in camera/robot frame
 };
 

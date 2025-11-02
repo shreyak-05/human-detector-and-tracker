@@ -36,35 +36,24 @@
 namespace perception {
 
 /**
- * @brief YOLO-based person detector and IoU tracker.
+ * @brief YOLO-based human detector with IoU tracking.
  *
- * Combines object detection using YOLO models with IoU-based tracking
- * to maintain persistent track IDs across video frames.
+ * Integrates YOLO detection with depth estimation and 3D transformation.
+ * Uses dependency injection for modular architecture and testability.
  */
 class DetectorTracker {
   friend class DetectorTrackerTest_PostProcessYoloOutput_Test;
  public:
   /**
-   * @brief Constructor for detector-tracker with dependency injection.
+   * @brief Constructor with dependency injection.
    * 
-   * This constructor uses dependency injection for all components, providing a clean
-   * separation of concerns and enabling flexible testing with mock objects. All dependencies
-   * are passed as shared pointers to their respective interfaces, enabling polymorphic
-   * behavior and isolated unit testing without requiring actual ONNX models or camera hardware.
+   * Injects all dependencies for clean separation of concerns and testing.
    * 
-   * This architecture allows the DetectorTracker to be a pure orchestration class that
-   * coordinates the workflow but delegates all concrete operations to injected components.
-   * 
-   * @param preprocessor Shared pointer to the image preprocessor implementing IPreprocessor.
-   *                     Converts raw frames to neural network input blobs.
-   * @param network Shared pointer to the neural network implementing INetwork.
-   *                Runs YOLO-style detection inference.
-   * @param depth_estimator Shared pointer to the depth estimator implementing IDepthEstimator.
-   *                        Estimates depth values for detected regions.
-   * @param transformer Shared pointer to the transformer implementing ITransformer.
-   *                   Converts 2D pixel coordinates with depth to 3D positions.
-   * @param confidence_threshold Confidence threshold for filtering detections (default: 0.5).
-   *                              Only detections with confidence >= threshold are returned.
+   * @param preprocessor Image preprocessor for network input
+   * @param network Neural network for detection inference
+   * @param depth_estimator Depth estimator for 3D positioning
+   * @param transformer 3D coordinate transformer
+   * @param confidence_threshold Detection confidence threshold (default: 0.5)
    */
   explicit DetectorTracker(std::shared_ptr<IPreprocessor> preprocessor,
                            std::shared_ptr<INetwork> network,
@@ -73,12 +62,12 @@ class DetectorTracker {
                            float confidence_threshold = 0.5f);
 
   /**
-   * @brief Run detection and update active tracks.
+   * @brief Run detection and update tracks.
    * @param frame Input video frame
-   * @param conf_thresh Confidence threshold for detections
-   * @param nms_thresh Non-maximum suppression threshold
-   * @param person_class_id Class ID for person detections
-   * @return Vector of active tracks with updated positions
+   * @param conf_thresh Confidence threshold (default: 0.4)
+   * @param nms_thresh NMS threshold (default: 0.45)
+   * @param person_class_id Person class ID (default: 0)
+   * @return Vector of active tracks
    */
   std::vector<Track> step(const cv::Mat& frame, float conf_thresh = 0.4f,
                           float nms_thresh = 0.45f, int person_class_id = 0);
@@ -86,13 +75,10 @@ class DetectorTracker {
   /**
    * @brief Detect humans in a frame.
    * 
-   * This method orchestrates the full detection pipeline:
-   * 1. Preprocess the frame using the injected preprocessor
-   * 2. Run neural network inference on the preprocessed blob
-   * 3. Post-process the network output to extract bounding boxes and confidences
+   * Runs the full detection pipeline: preprocess → inference → post-process.
    * 
    * @param frame Input video frame (BGR format)
-   * @return Vector of filtered detections with bounding boxes and confidence scores
+   * @return Vector of filtered detections
    */
   std::vector<Detection> detect(const cv::Mat& frame);
 
@@ -101,31 +87,26 @@ class DetectorTracker {
    * 
    * This method orchestrates the full 3D position estimation pipeline:
    * 1. Detect humans in 2D using the detect() method to get bounding boxes
-   * 2. Estimate depth for each detection using the depth estimator
-   * 3. Extract the center pixel of each bounding box
-   * 4. Transform 2D coordinates to 3D using the transformer with the estimated depth
+  /**
+   * @brief Get 3D positions of detected humans.
    * 
-   * The resulting 3D positions are in camera/robot coordinate frame, suitable for
-   * navigation and obstacle avoidance systems.
+   * Extends detect() with depth estimation and 3D transformation.
    * 
-   * @param frame Input video frame (BGR format) containing the scene to analyze
-   * @return Vector of 3D positions with detection IDs. Each Detection3D contains:
-   *         - detection_id: Unique identifier for the detection
-   *         - position: 3D point (x, y, z) in camera/robot frame (meters)
+   * @param frame Input video frame (BGR format)
+   * @return Vector of 3D detections with positions
    */
   std::vector<Detection3D> get_3d_positions(const cv::Mat& frame);
 
   /**
-   * @brief Post-process YOLO network output to extract detections.
+   * @brief Post-process YOLO output to extract detections.
    * 
-   * This method parses YOLO raw output tensor, filters detections by confidence threshold,
-   * converts center-based bounding boxes to top-left format, and applies NMS.
-   * Public for testing purposes (via FRIEND_TEST).
+   * Parses YOLO tensor, filters by confidence, and applies NMS.
    * 
-   * @param output Raw YOLO network output tensor [5, N_detections] where each column
-   *               contains [cx, cy, w, h, conf] for a detection
-   * @param conf_thresh Confidence threshold for filtering (e.g., 0.5)
-   * @return Vector of filtered and processed detections
+   * @param output YOLO network output tensor
+   * @param img_width Original image width
+   * @param img_height Original image height  
+   * @param conf_thresh Confidence threshold
+   * @return Vector of filtered detections
    */
   std::vector<Detection> post_process(const cv::Mat& output, 
                                        int img_width, int img_height,

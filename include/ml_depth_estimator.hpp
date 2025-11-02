@@ -51,10 +51,9 @@ class MLDepthEstimator : public IDepthEstimator {
   static cv::Mat normalizeDepth(const cv::Mat& depth);
 
   /**
-   * @brief Implementation of IDepthEstimator::get_depth.
+   * @brief Get depth at bounding box center.
    * 
-   * Estimates depth at the center of the bounding box by running
-   * inference on the frame and extracting the depth value.
+   * Runs inference and extracts depth value at bbox center.
    * 
    * @param frame Input image frame
    * @param bbox Bounding box region

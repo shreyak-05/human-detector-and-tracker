@@ -33,18 +33,18 @@ using namespace cv;
 using namespace perception;
 
 int main(int argc, char** argv) {
-  // Configuration constants
+  // Configuration
   const std::string detector_path = "models/yolov8n.onnx";
   const std::string depth_path = "models/depth_anything_v2_vits.onnx";
   const Size yolo_input_size(640, 640);
   Mat camera_matrix = (Mat_<double>(3, 3) << 500.0, 0, 320.0, 0, 500.0, 240.0, 0, 0, 1.0);
   
-  // Input mode configuration
+  // Input mode
   enum InputMode { CAMERA, VIDEO, IMAGE };
   InputMode mode = CAMERA;
   std::string input_path;
   
-  // Parse command line arguments
+  // Parse arguments
   if (argc > 1) {
     std::string arg = argv[1];
     if (arg == "test_video") {
@@ -68,9 +68,8 @@ int main(int argc, char** argv) {
     auto transformer = std::make_shared<Transformer3D>(camera_matrix);
     DetectorTracker detector(preprocessor, detector_network, depth_estimator, transformer, 0.5f);
     
-    // Process based on input mode
     if (mode == IMAGE) {
-      // === IMAGE PROCESSING MODE ===
+      // === IMAGE MODE ===
       Mat frame = cv::imread(input_path);
       if (frame.empty()) {
         std::cerr << "Error: Cannot open image file: " << input_path << std::endl;
@@ -79,7 +78,7 @@ int main(int argc, char** argv) {
       
       auto positions = detector.get_3d_positions(frame);
       
-      // Draw detection results
+      // Draw results
       for (const auto& det : positions) {
         cv::rectangle(frame, det.bbox, cv::Scalar(0, 255, 0), 2);
         std::string text = cv::format("ID %d: (%.1fm, %.1fm, %.1fm)",
@@ -92,8 +91,8 @@ int main(int argc, char** argv) {
       cv::waitKey(0);
       
     } else {
-      // === VIDEO/CAMERA PROCESSING MODE ===
-      // Setup video capture
+      // === VIDEO/CAMERA MODE ===
+      // Setup capture
       VideoCapture cap;
       cap.open(mode == CAMERA ? 0 : input_path);
       if (!cap.isOpened()) {
@@ -101,7 +100,7 @@ int main(int argc, char** argv) {
         return -1;
       }
       
-      // Setup video writer for output (if processing video file)
+      // Setup output video writer
       VideoWriter video_writer;
       if (mode == VIDEO) {
         system("mkdir -p results");
@@ -111,21 +110,21 @@ int main(int argc, char** argv) {
         video_writer.open("results/output_detected.mp4", fourcc, fps, frame_size);
       }
       
-      // Optimization configuration
-      const int depth_skip_interval = 30;  // Run depth every 30 frames for max speed
+      // Optimization settings
+      const int depth_skip_interval = 30;  // Run depth every 30 frames
       const int detection_skip_interval = 3;  // Run detection every 3 frames
       const cv::Point3f default_position(0, 0, 2.0f);
       const float iou_threshold = 0.3f;  // IoU threshold for track association
       
-      // State variables for frame processing
+      // State variables
       std::vector<Detection3D> last_positions;
       std::vector<Detection> cached_detections;
       std::vector<Track> active_tracks;  // Persistent tracks with IoU matching
-      int next_track_id = 1;  // Start track IDs from 1
+      int next_track_id = 1;
       auto start_time = std::chrono::high_resolution_clock::now();
       int frame_count = 0;
       
-      // Main video processing loop
+      // Main processing loop
       Mat frame;
       while (cap.read(frame)) {
         frame_count++;
@@ -140,9 +139,9 @@ int main(int argc, char** argv) {
         
         std::vector<Detection3D> positions;
         
-        // Frame processing strategy with optimization + IoU tracking
+        // Processing strategy: depth + tracking
         if (frame_count % depth_skip_interval == 1) {
-          // Full processing with depth estimation (expensive, rare)
+          // Full processing: detection + depth + tracking
           depth_estimator->set_frame_id(frame_count);
           auto detections = detector.detect(frame);
           cached_detections = detections;
@@ -188,7 +187,7 @@ int main(int argc, char** argv) {
             }
           }
           
-          // Remove old tracks (not updated for too long)
+          // Remove old tracks
           active_tracks.erase(
             std::remove_if(active_tracks.begin(), active_tracks.end(),
               [](Track& track) {
@@ -197,7 +196,7 @@ int main(int argc, char** argv) {
               }),
             active_tracks.end());
           
-          // Create 3D positions from tracks
+          // Create 3D positions
           if (!active_tracks.empty()) {
             for (const auto& track : active_tracks) {
               float depth = depth_estimator->get_depth(frame, track.det.box);
@@ -209,7 +208,7 @@ int main(int argc, char** argv) {
             last_positions = positions;
           }
         } else if (frame_count % detection_skip_interval == 1) {
-          // Detection only with track update (medium cost, occasional)
+          // Detection only with track update
           auto detections = detector.detect(frame);
           cached_detections = detections;
           
@@ -237,18 +236,18 @@ int main(int argc, char** argv) {
           // Generate positions from updated tracks
           if (!active_tracks.empty() && !last_positions.empty()) {
             for (const auto& track : active_tracks) {
-              if (track.time_since_update == 0) {  // Only recently updated tracks
-                // Use cached depth from last full processing
+              if (track.time_since_update == 0) {  // Only recently updated
+                // Use cached depth
                 cv::Point3f pos = last_positions.empty() ? default_position : last_positions[0].position;
                 positions.push_back({track.id, track.det.box, pos});
               }
             }
           }
         } else {
-          // Ultra-fast mode: reuse track data (cheap, most frames)
+          // Ultra-fast mode: reuse track data
           if (!active_tracks.empty()) {
             for (const auto& track : active_tracks) {
-              if (track.time_since_update < 5) {  // Only show recent tracks
+              if (track.time_since_update < 5) {  // Only recent tracks
                 cv::Point3f pos = last_positions.empty() ? default_position : last_positions[0].position;
                 positions.push_back({track.id, track.det.box, pos});
               }
@@ -256,7 +255,7 @@ int main(int argc, char** argv) {
           }
         }
         
-        // Draw detection results on frame
+        // Draw results
         for (const auto& det : positions) {
           cv::rectangle(frame, det.bbox, cv::Scalar(0, 255, 0), 2);
           std::string text = cv::format("ID %d: (%.1fm, %.1fm, %.1fm)",
@@ -265,13 +264,13 @@ int main(int argc, char** argv) {
           cv::putText(frame, text, text_origin, cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 255, 0), 2);
         }
         
-        // Display and save frame
+        // Display and save
         cv::imshow("Human Detector", frame);
         if (video_writer.isOpened()) video_writer.write(frame);
         if (cv::waitKey(1) == 'q') break;
       }
       
-      // Cleanup video resources
+      // Cleanup
       cap.release();
       if (video_writer.isOpened()) video_writer.release();
     }
