@@ -30,18 +30,33 @@ cv::Point3f Transformer3D::project_to_3d(cv::Point2f pixel, float depth) {
   double cx = camera_matrix_.at<double>(0, 2);
   double cy = camera_matrix_.at<double>(1, 2);
   
-  auto x = (pixel.x - cx) * depth / fx;
-  auto y = (pixel.y - cy) * depth / fy;
+  float x = (pixel.x - cx) * depth / fx;
+  float y = (pixel.y - cy) * depth / fy;
   
   return cv::Point3f(x, y, depth);
 }
 
 GroundPoint Transformer3D::pixelToRobot(float u, float v, float d) const {
-  // TODO: Transform pixel to robot coordinates
-  return {0.0f, 0.0f, 0.0f};
+  double fx = camera_matrix_.at<double>(0, 0);
+  double fy = camera_matrix_.at<double>(1, 1);
+  double cx = camera_matrix_.at<double>(0, 2);
+  double cy = camera_matrix_.at<double>(1, 2);
+  
+  float x = (u - cx) * d / fx;
+  float y = (v - cy) * d / fy;
+  
+  return {x, y, d};
 }
 
 GroundPoint Transformer3D::boxToRobot(const Rect& box, const Mat& depth) const {
-  // TODO: Transform bounding box to robot coordinates
-  return {0.0f, 0.0f, 0.0f};
+  float center_u = box.x + box.width / 2.0f;
+  float center_v = box.y + box.height / 2.0f;
+  
+  int u = std::max(0, std::min(static_cast<int>(center_u), depth.cols - 1));
+  int v = std::max(0, std::min(static_cast<int>(center_v), depth.rows - 1));
+  
+  float d = depth.at<float>(v, u);
+  if (d <= 0.0f) d = 2.0f;  // Default fallback
+  
+  return pixelToRobot(center_u, center_v, d);
 }
