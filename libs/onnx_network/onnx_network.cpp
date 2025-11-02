@@ -42,22 +42,8 @@ OnnxNetwork::OnnxNetwork(const std::string& model_path) {
 }
 
 Mat OnnxNetwork::forward(const Mat& blob) {
-  std::cout << "OnnxNetwork::forward() - Input blob shape: ";
-  for (int i = 0; i < blob.dims; i++) {
-    std::cout << blob.size[i] << " ";
-  }
-  std::cout << std::endl;
-  
   net_.setInput(blob);
   Mat output = net_.forward();
-  
-  std::cout << "OnnxNetwork::forward() - Output shape: ";
-  for (int i = 0; i < output.dims; i++) {
-    std::cout << output.size[i] << " ";
-  }
-  std::cout << std::endl;
-  std::cout << "OnnxNetwork::forward() - Output type: " << output.type() << " depth: " << output.depth() << std::endl;
-  
   return output;
 }
 

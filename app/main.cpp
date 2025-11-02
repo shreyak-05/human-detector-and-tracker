@@ -89,18 +89,16 @@ int main(int argc, char** argv) {
   }
   
   try {
-    std::cout << "Loading YOLO detector: " << detector_path << std::endl;
-    
     // Instantiate all concrete classes using std::make_shared
     auto preprocessor = std::make_shared<Preprocessor>(yolo_input_size.width, yolo_input_size.height);
     auto detector_network = std::make_shared<OnnxNetwork>(detector_path);
     auto depth_estimator = std::make_shared<MLDepthEstimator>(depth_path, 518, 518, false);
     auto transformer = std::make_shared<Transformer3D>(camera_matrix);
     
-    std::cout << "Creating HumanDetector with injected dependencies..." << std::endl;
-    
     // Create the HumanDetector by injecting all dependencies
     DetectorTracker detector(preprocessor, detector_network, depth_estimator, transformer, 0.5f);
+    
+    std::cout << "Human detector loaded successfully." << std::endl;
     
     // Determine input source based on mode
     Mat frame;
@@ -118,8 +116,7 @@ int main(int argc, char** argv) {
       
       std::cout << "Image loaded successfully. Press 'q' to quit." << std::endl;
       
-      // Process the image once
-      std::cout << "Processing image..." << std::endl;
+      std::cout << "=== Processing Image ===" << std::endl;
       
       // Run the full 3D detection pipeline
       auto positions = detector.get_3d_positions(frame);
@@ -128,9 +125,9 @@ int main(int argc, char** argv) {
       for (size_t i = 0; i < positions.size(); i++) {
         const auto& det = positions[i];
         
-        // Display 3D position
-        std::cout << "Human " << i << " at: (" << det.position.x << ", " 
-                  << det.position.y << ", " << det.position.z << ")" << std::endl;
+        // Display 3D position in structured format
+        std::cout << "Human " << i << ": 3D position (" << std::fixed << std::setprecision(2) 
+                  << det.position.x << ", " << det.position.y << ", " << det.position.z << ") meters" << std::endl;
         
         // Draw bounding box
         cv::rectangle(frame, det.bbox, cv::Scalar(0, 255, 0), 2);
