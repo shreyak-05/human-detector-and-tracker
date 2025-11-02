@@ -209,33 +209,20 @@ std::vector<Detection> DetectorTracker::post_process(const cv::Mat& output,
   return detections;
 }
 
-float DetectorTracker::iou(const Rect& a, const Rect& b) const {
-  // TODO: Calculate intersection over union
-  return 0.0f;
-}
-
-std::vector<Detection> DetectorTracker::parse(const cv::Mat& out,
-                                              const cv::Size& img_size,
-                                              float conf_thresh,
-                                              int cls_id) const {
-  // TODO: Parse YOLO output to detections
-  std::vector<Detection> detections;
-  return detections;
-}
-
-std::vector<Track> DetectorTracker::associate(
-    const std::vector<Detection>& dets) {
-  // TODO: Associate detections with tracks
-  return tracks_;
-}
-
 std::vector<Track> DetectorTracker::step(const Mat& frame, float conf,
                                          float nms, int cls) {
-  // TODO: Run detection and tracking pipeline
+  // Simple implementation: convert detections to tracks
+  auto detections = detect(frame);
   std::vector<Track> tracks;
+  
+  for (size_t i = 0; i < detections.size(); i++) {
+    Track track;
+    track.id = static_cast<int>(i);
+    track.det = detections[i];
+    track.age = 1;
+    track.time_since_update = 0;
+    tracks.push_back(track);
+  }
+  
   return tracks;
-}
-
-void DetectorTracker::drawTracks(Mat& img, const std::vector<Track>& tracks) {
-  // TODO: Draw bounding boxes and track IDs
 }

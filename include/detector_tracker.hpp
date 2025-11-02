@@ -116,13 +116,6 @@ class DetectorTracker {
   std::vector<Detection3D> get_3d_positions(const cv::Mat& frame);
 
   /**
-   * @brief Draw active tracks.
-   * @param img Image to draw on (modified in-place)
-   * @param tracks Vector of tracks to visualize
-   */
-  static void drawTracks(cv::Mat& img, const std::vector<Track>& tracks);
-
-  /**
    * @brief Post-process YOLO network output to extract detections.
    * 
    * This method parses YOLO raw output tensor, filters detections by confidence threshold,
@@ -139,33 +132,6 @@ class DetectorTracker {
                                        float conf_thresh) const;
 
  private:
-
-  /**
-   * @brief Parse YOLO network output into detections.
-   * @param out Raw network output tensor
-   * @param img_size Original image size for coordinate scaling
-   * @param conf_thresh Confidence threshold for filtering
-   * @param class_id Target class ID to filter (0 = person)
-   * @return Vector of filtered detections
-   */
-  std::vector<Detection> parse(const cv::Mat& out, const cv::Size& img_size,
-                               float conf_thresh, int class_id) const;
-
-  /**
-   * @brief Associate new detections with existing tracks.
-   * @param dets Vector of current frame detections
-   * @return Updated vector of tracks
-   */
-  std::vector<Track> associate(const std::vector<Detection>& dets);
-
-  /**
-   * @brief Calculate Intersection over Union between two rectangles.
-   * @param a First bounding box
-   * @param b Second bounding box
-   * @return IoU score [0.0, 1.0]
-   */
-  float iou(const cv::Rect& a, const cv::Rect& b) const;
-
   std::shared_ptr<IPreprocessor> preprocessor_;     ///< Image preprocessor for network input
   std::shared_ptr<INetwork> network_;               ///< Neural network for inference
   std::shared_ptr<IDepthEstimator> depth_estimator_; ///< Depth estimator

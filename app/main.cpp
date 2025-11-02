@@ -33,15 +33,18 @@ using namespace cv;
 using namespace perception;
 
 int main(int argc, char** argv) {
+  // Configuration constants
   const std::string detector_path = "models/yolov8n.onnx";
   const std::string depth_path = "models/depth_anything_v2_vits.onnx";
   const Size yolo_input_size(640, 640);
   Mat camera_matrix = (Mat_<double>(3, 3) << 500.0, 0, 320.0, 0, 500.0, 240.0, 0, 0, 1.0);
   
+  // Input mode configuration
   enum InputMode { CAMERA, VIDEO, IMAGE };
   InputMode mode = CAMERA;
   std::string input_path;
   
+  // Parse command line arguments
   if (argc > 1) {
     std::string arg = argv[1];
     if (arg == "test_video") {
@@ -58,17 +61,17 @@ int main(int argc, char** argv) {
   }
   
   try {
+    // Initialize components
     auto preprocessor = std::make_shared<Preprocessor>(yolo_input_size.width, yolo_input_size.height);
     auto detector_network = std::make_shared<OnnxNetwork>(detector_path);
     auto depth_estimator = std::make_shared<MLDepthEstimator>(depth_path, 518, 518, false);
     auto transformer = std::make_shared<Transformer3D>(camera_matrix);
     DetectorTracker detector(preprocessor, detector_network, depth_estimator, transformer, 0.5f);
     
-    Mat frame;
-    int frame_count = 0;
-    
+    // Process based on input mode
     if (mode == IMAGE) {
-      frame = cv::imread(input_path);
+      // === IMAGE PROCESSING MODE ===
+      Mat frame = cv::imread(input_path);
       if (frame.empty()) {
         std::cerr << "Error: Cannot open image file: " << input_path << std::endl;
         return -1;
@@ -76,7 +79,7 @@ int main(int argc, char** argv) {
       
       auto positions = detector.get_3d_positions(frame);
       
-      // Draw results
+      // Draw detection results
       for (const auto& det : positions) {
         cv::rectangle(frame, det.bbox, cv::Scalar(0, 255, 0), 2);
         std::string text = cv::format("ID %d: (%.1fm, %.1fm, %.1fm)",
@@ -89,6 +92,8 @@ int main(int argc, char** argv) {
       cv::waitKey(0);
       
     } else {
+      // === VIDEO/CAMERA PROCESSING MODE ===
+      // Setup video capture
       VideoCapture cap;
       cap.open(mode == CAMERA ? 0 : input_path);
       if (!cap.isOpened()) {
@@ -96,6 +101,7 @@ int main(int argc, char** argv) {
         return -1;
       }
       
+      // Setup video writer for output (if processing video file)
       VideoWriter video_writer;
       if (mode == VIDEO) {
         system("mkdir -p results");
@@ -105,18 +111,23 @@ int main(int argc, char** argv) {
         video_writer.open("results/output_detected.mp4", fourcc, fps, frame_size);
       }
       
+      // Optimization configuration
+      const int depth_skip_interval = 30;  // Run depth every 30 frames for max speed
+      const int detection_skip_interval = 3;  // Run detection every 3 frames
+      const cv::Point3f default_position(0, 0, 2.0f);
+      
+      // State variables for frame processing
       std::vector<Detection3D> last_positions;
-      int depth_skip_interval = 30;  // Run depth every 30 frames for max speed
-      int detection_skip_interval = 3;  // Run detection every 3 frames
-      auto start_time = std::chrono::high_resolution_clock::now();
-      
-      // Cache for ultra-fast mode
       std::vector<Detection> cached_detections;
-      cv::Point3f default_position(0, 0, 2.0f);
+      auto start_time = std::chrono::high_resolution_clock::now();
+      int frame_count = 0;
       
+      // Main video processing loop
+      Mat frame;
       while (cap.read(frame)) {
         frame_count++;
         
+        // Performance monitoring
         if (frame_count % 30 == 0) {
           auto current_time = std::chrono::high_resolution_clock::now();
           auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(current_time - start_time).count();
@@ -126,8 +137,9 @@ int main(int argc, char** argv) {
         
         std::vector<Detection3D> positions;
         
-        // Full processing with depth (very rarely)
+        // Frame processing strategy with optimization
         if (frame_count % depth_skip_interval == 1) {
+          // Full processing with depth estimation (expensive, rare)
           depth_estimator->set_frame_id(frame_count);
           auto detections = detector.detect(frame);
           cached_detections = detections;
@@ -142,9 +154,8 @@ int main(int argc, char** argv) {
             }
             last_positions = positions;
           }
-        }
-        // Detection only (occasionally)
-        else if (frame_count % detection_skip_interval == 1) {
+        } else if (frame_count % detection_skip_interval == 1) {
+          // Detection only (medium cost, occasional)
           auto detections = detector.detect(frame);
           cached_detections = detections;
           
@@ -153,9 +164,8 @@ int main(int argc, char** argv) {
               positions.push_back({static_cast<int>(i), detections[i].box, last_positions[i].position});
             }
           }
-        }
-        // Ultra-fast mode: reuse everything (most frames)
-        else {
+        } else {
+          // Ultra-fast mode: reuse cached data (cheap, most frames)
           if (!cached_detections.empty()) {
             cv::Point3f pos = last_positions.empty() ? default_position : last_positions[0].position;
             for (size_t i = 0; i < cached_detections.size(); i++) {
@@ -164,7 +174,7 @@ int main(int argc, char** argv) {
           }
         }
         
-        // Draw results
+        // Draw detection results on frame
         for (const auto& det : positions) {
           cv::rectangle(frame, det.bbox, cv::Scalar(0, 255, 0), 2);
           std::string text = cv::format("ID %d: (%.1fm, %.1fm, %.1fm)",
@@ -173,11 +183,13 @@ int main(int argc, char** argv) {
           cv::putText(frame, text, text_origin, cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 255, 0), 2);
         }
         
+        // Display and save frame
         cv::imshow("Human Detector", frame);
         if (video_writer.isOpened()) video_writer.write(frame);
         if (cv::waitKey(1) == 'q') break;
       }
       
+      // Cleanup video resources
       cap.release();
       if (video_writer.isOpened()) video_writer.release();
     }
