@@ -31,7 +31,12 @@
 namespace perception {
 
 /**
- * @brief Projects 2D pixels to 3D robot coordinates.
+ * @brief Projects 2D pixels to 3D camera/robot coordinates using pinhole camera model.
+ *
+ * Implements 3D coordinate transformation using camera intrinsic parameters.
+ * Converts 2D pixel coordinates (u, v) with depth to 3D points (x, y, z) in the
+ * camera frame. Uses the standard pinhole camera model transformation:
+ * x = (u - cx) * depth / fx, y = (v - cy) * depth / fy, z = depth
  */
 class Transformer3D : public ITransformer {
  public:

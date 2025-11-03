@@ -346,6 +346,10 @@ This is an academic project for ENPM700. For questions or collaborations, please
 
 ---
 
+## License
+
 **License**: Apache 2.0 License - see [LICENSE](LICENSE) file for details.
+
+We chose the Apache 2.0 License for this project because it provides the perfect balance of openness and legal protection for both academic and commercial use. Apache 2.0 is fully compatible with all our dependencies (OpenCV, ONNX Runtime, GoogleTest) and includes explicit patent grants that protect contributors and users from patent litigation—a crucial consideration for AI/ML projects. Additionally, it's an industry-standard license widely adopted in the robotics and computer vision community, ensuring our work can be easily integrated into both open-source and proprietary systems without legal barriers.
 
 **Built for**: ENPM700 - Software Development for Robotics | University of Maryland, College Park

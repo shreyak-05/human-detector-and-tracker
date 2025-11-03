@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * @file transformer.cpp
+ * @brief Implementation of 3D coordinate transformation
+ * @author Shreya Kalyanaraman
+ * @author Tirth Sadaria
+ */
+
 #include "transformer.hpp"
 using namespace cv;
 using namespace perception;

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * @file detector_tracker.cpp
+ * @brief Implementation of YOLO-based human detection and tracking
+ * @author Shreya Kalyanaraman
+ * @author Tirth Sadaria
+ */
+
 #include "detector_tracker.hpp"
 
 #include <algorithm>

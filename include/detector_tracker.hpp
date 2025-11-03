@@ -63,15 +63,6 @@ class DetectorTracker {
                            float confidence_threshold = 0.5f);
 
   /**
-   * @brief Run detection and update tracks.
-   * @param frame Input video frame
-   * @param conf_thresh Confidence threshold (default: 0.4)
-   * @param nms_thresh NMS threshold (default: 0.45)
-   * @param person_class_id Person class ID (default: 0)
-   * @return Vector of active tracks
-   */
-
-  /**
    * @brief Detect humans in a frame.
    *
    * Runs the full detection pipeline: preprocess → inference → post-process.

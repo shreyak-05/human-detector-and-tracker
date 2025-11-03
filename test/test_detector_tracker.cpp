@@ -1,3 +1,10 @@
+/**
+ * @file test_detector_tracker.cpp
+ * @brief Unit tests for DetectorTracker class
+ * @author Shreya Kalyanaraman
+ * @author Tirth Sadaria
+ */
+
 #include <gtest/gtest.h>
 
 #include <memory>

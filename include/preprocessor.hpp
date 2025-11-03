@@ -1,9 +1,7 @@
 /*
  * Copyright 2025 Shreya Kalyanaraman and Tirth Sadaria
  *
- * Licensed  cv::Mat process(const cv::Mat& frame);
-
- private: Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -54,6 +52,10 @@ class IPreprocessor {
 
 /**
  * @brief Image preprocessing for DNN models.
+ *
+ * Concrete implementation of IPreprocessor using OpenCV's blobFromImage function.
+ * Handles resizing, normalization, and channel reordering for neural network input.
+ * Supports configurable input dimensions and optional RGB/BGR channel swapping.
  */
 class Preprocessor : public IPreprocessor {
  public:
@@ -77,6 +79,8 @@ class Preprocessor : public IPreprocessor {
 
   /**
    * @brief Create normalized blob for DNN.
+   * @note This method is declared but not currently implemented.
+   *       The process() method uses OpenCV's blobFromImage directly.
    * @param img Input BGR image
    * @return 4D blob tensor [N,C,H,W]
    */

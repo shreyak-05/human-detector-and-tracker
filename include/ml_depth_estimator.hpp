@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * @file ml_depth_estimator.hpp
+ * @brief Monocular depth estimation using ONNX models (Depth Anything V2)
+ * @author Shreya Kalyanaraman
+ * @author Tirth Sadaria
+ */
+
 #pragma once
 #include <onnxruntime_cxx_api.h>
 
@@ -24,7 +31,11 @@
 namespace perception {
 
 /**
- * @brief Monocular depth estimator using ONNX models.
+ * @brief Monocular depth estimator using ONNX Runtime for Depth Anything V2.
+ *
+ * Implements depth estimation using ONNX Runtime (not OpenCV DNN) to support
+ * custom operators in Depth Anything V2. Includes frame-level caching to
+ * avoid re-running inference on every depth query for performance optimization.
  */
 class MLDepthEstimator : public IDepthEstimator {
  public:

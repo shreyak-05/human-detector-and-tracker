@@ -1,3 +1,10 @@
+/**
+ * @file test_preprocessor.cpp
+ * @brief Unit tests for Preprocessor class
+ * @author Shreya Kalyanaraman
+ * @author Tirth Sadaria
+ */
+
 #include <gtest/gtest.h>
 
 #include <opencv2/opencv.hpp>

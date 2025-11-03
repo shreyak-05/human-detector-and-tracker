@@ -14,6 +14,18 @@
  * limitations under the License.
  */
 
+/**
+ * @file main.cpp
+ * @brief Main application entry point for human detection and tracking
+ * @author Shreya Kalyanaraman
+ * @author Tirth Sadaria
+ *
+ * This application provides a command-line interface for running human detection
+ * and tracking on various input sources (camera, video files, or images).
+ * It uses YOLOv8 for detection, Depth Anything V2 for depth estimation, and
+ * outputs 3D positions of detected humans in the robot coordinate frame.
+ */
+
 #include <chrono>
 #include <cstdlib>
 #include <fstream>
@@ -32,6 +44,18 @@
 using namespace cv;
 using namespace perception;
 
+/**
+ * @brief Main entry point for the human detection and tracking application.
+ *
+ * Supports multiple input modes:
+ * - Camera: Real-time detection from webcam (default)
+ * - Video: Process video file frame by frame
+ * - Image: Single image detection and visualization
+ *
+ * @param argc Number of command-line arguments
+ * @param argv Command-line arguments. Optional: "test_video", "test_image", or path to video/image file
+ * @return Exit code: 0 on success, non-zero on error
+ */
 int main(int argc, char** argv) {
   // Configuration
   const std::string detector_path = "models/yolov8n.onnx";

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * @file preprocessor.cpp
+ * @brief Implementation of image preprocessing for DNN models
+ * @author Shreya Kalyanaraman
+ * @author Tirth Sadaria
+ */
+
 #include "preprocessor.hpp"
 
 #include <iostream>

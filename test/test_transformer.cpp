@@ -1,3 +1,10 @@
+/**
+ * @file test_transformer.cpp
+ * @brief Unit tests for Transformer3D class
+ * @author Shreya Kalyanaraman
+ * @author Tirth Sadaria
+ */
+
 #include <gtest/gtest.h>
 
 #include <opencv2/opencv.hpp>
