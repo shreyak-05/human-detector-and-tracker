@@ -21,20 +21,6 @@ dist/
 *.lib
 *.dylib
 
-# ========================
-# Third-party libraries (large binaries)
-# ========================
-onnxruntime/
-results/
-
-# ========================
-# Large model files (use Git LFS)
-# ========================
-*.onnx
-models/*.onnx
-!models/yolov8n.onnx
-!models/depth_anything_small.onnx
-
 
 # ========================
 # CMake & Code Coverage
@@ -86,34 +72,19 @@ __pycache__/
 *.tar.gz
 
 # ========================
-# Test outputs and logs
+# Project-specific exclusions
 # ========================
-test_detail.xml
-*.xml
-*.log
-*.txt
+# ONNX Runtime (users install this themselves)
+onnxruntime/
 
-# ========================
-# Coverage reports
-# ========================
-*.gcov
-*.gcda
-*.gcno
-*.info
-coverage/
-*.html
-
-# ========================
-# Documentation build outputs (exclude generated docs)
-# ========================
+# Generated documentation (users can build this with `make docs`)
 docs/html/
-docs/latex/
-docs/xml/
-docs/man/
-docs/rtf/
-*.doxygen_sqlite3
 
-# Keep important docs but exclude generated content
-!docs/*.pdf
-!docs/*.md
-!docs/*.xlsx
+# Results and output files
+results/*.jpg
+results/*.mp4
+results/*.txt
+results/output_*
+
+# Temporary model outputs
+*_detected.*
