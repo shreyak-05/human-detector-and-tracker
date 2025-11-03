@@ -76,3 +76,28 @@ __pycache__/
 *.zip
 *.tar
 *.tar.gz
+
+# ========================
+# Test outputs and logs
+# ========================
+test_detail.xml
+*.xml
+*.log
+*.txt
+
+# ========================
+# Coverage reports
+# ========================
+*.gcov
+*.gcda
+*.gcno
+*.info
+coverage/
+*.html
+
+# ========================
+# Documentation build
+# ========================
+docs/html/
+docs/latex/
+docs/xml/
