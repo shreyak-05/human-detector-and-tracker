@@ -28,13 +28,9 @@ namespace perception {
 
 /**
  * @brief Interface for image preprocessing.
- * 
- * This abstract interface defines the contract for image preprocessing operations.
- * Implementations of this interface are responsible for converting raw image frames
- * into 4D blob tensors suitable for input to neural networks.
- * 
- * @note This interface supports dependency injection, allowing mock implementations
- *       for unit testing and flexible runtime preprocessor selection.
+ *
+ * Defines contract for converting raw frames to neural network input blobs.
+ * Supports dependency injection for testing and flexible implementation.
  */
 class IPreprocessor {
  public:
@@ -42,21 +38,24 @@ class IPreprocessor {
    * @brief Virtual destructor for polymorphic destruction.
    */
   virtual ~IPreprocessor() = default;
-  
+
   /**
    * @brief Process image frame into a blob for DNN.
-   * 
-   * This pure virtual method must be implemented by concrete preprocessor classes.
-   * It takes a raw image frame and returns a 4D blob tensor suitable for neural network input.
-   * 
-   * @param frame Input image frame (typically BGR format from video/webcam)
-   * @return Processed 4D blob tensor [N,C,H,W] where N=1, C=3
+   *
+   * Converts raw image to 4D tensor suitable for neural network input.
+   *
+   * @param frame Input image frame (BGR format)
+   * @return 4D blob tensor [N,C,H,W] where N=1, C=3
    */
   virtual cv::Mat process(const cv::Mat& frame) = 0;
 };
 
 /**
  * @brief Image preprocessing for DNN models.
+ *
+ * Concrete implementation of IPreprocessor using OpenCV's blobFromImage function.
+ * Handles resizing, normalization, and channel reordering for neural network input.
+ * Supports configurable input dimensions and optional RGB/BGR channel swapping.
  */
 class Preprocessor : public IPreprocessor {
  public:
@@ -70,17 +69,18 @@ class Preprocessor : public IPreprocessor {
 
   /**
    * @brief Process image frame into a 4D blob for DNN.
-   * 
-   * Resizes the image to the target size, normalizes pixel values (0-255 to 0-1),
-   * swaps RGB/BGR channels if configured, and creates a 4D blob tensor.
-   * 
-   * @param frame Input image frame (BGR format)
-   * @return 4D blob tensor [N,C,H,W] where N=1, C=3, H=input_h, W=input_w
+   *
+   * Resizes, normalizes, and creates 4D blob tensor for network input.
+   *
+   * @param frame Input image (BGR format)
+   * @return 4D blob tensor [N,C,H,W]
    */
   cv::Mat process(const cv::Mat& frame) override;
 
   /**
    * @brief Create normalized blob for DNN.
+   * @note This method is declared but not currently implemented.
+   *       The process() method uses OpenCV's blobFromImage directly.
    * @param img Input BGR image
    * @return 4D blob tensor [N,C,H,W]
    */

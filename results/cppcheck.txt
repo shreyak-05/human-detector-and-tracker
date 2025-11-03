@@ -1,53 +1,27 @@
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/include/detector_tracker.hpp:56:26: style: Unused private function: 'DetectorTracker::parse' [unusedPrivateFunction]
-  std::vector<Detection> parse(const cv::Mat& out, const cv::Size& img_size,
-                         ^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/include/detector_tracker.hpp:64:22: style: Unused private function: 'DetectorTracker::associate' [unusedPrivateFunction]
-  std::vector<Track> associate(const std::vector<Detection>& dets);
-                     ^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/include/detector_tracker.hpp:72:9: style: Unused private function: 'DetectorTracker::iou' [unusedPrivateFunction]
-  float iou(const cv::Rect& a, const cv::Rect& b) const;
-        ^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/detector_tracker/detector_tracker.cpp:10:3: performance: Variable 'net_' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
-  net_ = dnn::readNetFromONNX(model);
-  ^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/ml_depth_estimator/ml_depth_estimator.cpp:8:3: performance: Variable 'net_' is assigned in constructor body. Consider performing initialization in initialization list. [useInitializationList]
-  net_ = dnn::readNetFromONNX(path);
-  ^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/include/ml_depth_estimator.hpp:19:3: style: Class 'MLDepthEstimator' has a constructor with 1 argument that is not explicit. [noExplicitConstructor]
-  MLDepthEstimator(const std::string& model_path, int input_w = 256,
-  ^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/app/main.cpp:9:27: style: Parameter 'argv' can be declared with const [constParameter]
-int main(int argc, char** argv) {
-                          ^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/detector_tracker/detector_tracker.cpp:36:0: style: The function 'associate' is never used. [unusedFunction]
-
-^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/transformer/transformer.cpp:13:0: style: The function 'boxToRobot' is never used. [unusedFunction]
-
-^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/detector_tracker/detector_tracker.cpp:49:0: style: The function 'drawTracks' is never used. [unusedFunction]
-
-^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/ml_depth_estimator/ml_depth_estimator.cpp:20:0: style: The function 'infer' is never used. [unusedFunction]
-
-^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/detector_tracker/detector_tracker.cpp:22:0: style: The function 'iou' is never used. [unusedFunction]
-
-^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/preprocessor/preprocessor.cpp:11:0: style: The function 'makeBlob' is never used. [unusedFunction]
-
-^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/ml_depth_estimator/ml_depth_estimator.cpp:26:0: style: The function 'normalizeDepth' is never used. [unusedFunction]
-
-^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/detector_tracker/detector_tracker.cpp:27:0: style: The function 'parse' is never used. [unusedFunction]
-
-^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/transformer/transformer.cpp:8:0: style: The function 'pixelToRobot' is never used. [unusedFunction]
-
-^
-/home/tirth/ENPM700/Phase0/human-detector-and-tracker/libs/detector_tracker/detector_tracker.cpp:42:0: style: The function 'step' is never used. [unusedFunction]
-
-^
-nofile:0:0: information: Unmatched suppression: unknownMacro [unmatchedSuppression]
-
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/libs/detector_tracker/detector_tracker.cpp ...
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/libs/detector_tracker/detector_tracker.cpp: __cplusplus=201703L...
+1/10 files checked 10% done
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/libs/ml_depth_estimator/ml_depth_estimator.cpp ...
+2/10 files checked 20% done
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/libs/preprocessor/preprocessor.cpp ...
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/libs/preprocessor/preprocessor.cpp: __cplusplus=201703L...
+3/10 files checked 30% done
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/libs/transformer/transformer.cpp ...
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/libs/transformer/transformer.cpp: __cplusplus=201703L...
+4/10 files checked 40% done
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/libs/onnx_network/onnx_network.cpp ...
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/libs/onnx_network/onnx_network.cpp: __cplusplus=201703L...
+5/10 files checked 50% done
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/app/main.cpp ...
+6/10 files checked 60% done
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_depth.cpp ...
+7/10 files checked 70% done
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_detector_tracker.cpp ...
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_detector_tracker.cpp: __cplusplus=201703L...
+8/10 files checked 80% done
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_preprocessor.cpp ...
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_preprocessor.cpp: __cplusplus=201703L...
+9/10 files checked 90% done
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_transformer.cpp ...
+Checking /home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_transformer.cpp: __cplusplus=201703L...
+10/10 files checked 100% done

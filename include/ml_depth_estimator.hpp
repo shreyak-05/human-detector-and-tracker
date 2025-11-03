@@ -14,15 +14,28 @@
  * limitations under the License.
  */
 
+/**
+ * @file ml_depth_estimator.hpp
+ * @brief Monocular depth estimation using ONNX models (Depth Anything V2)
+ * @author Shreya Kalyanaraman
+ * @author Tirth Sadaria
+ */
+
 #pragma once
-#include "idepth_estimator.hpp"
-#include <opencv2/dnn.hpp>
+#include <onnxruntime_cxx_api.h>
+
 #include <opencv2/opencv.hpp>
+
+#include "idepth_estimator.hpp"
 
 namespace perception {
 
 /**
- * @brief Monocular depth estimator using ONNX models.
+ * @brief Monocular depth estimator using ONNX Runtime for Depth Anything V2.
+ *
+ * Implements depth estimation using ONNX Runtime (not OpenCV DNN) to support
+ * custom operators in Depth Anything V2. Includes frame-level caching to
+ * avoid re-running inference on every depth query for performance optimization.
  */
 class MLDepthEstimator : public IDepthEstimator {
  public:
@@ -51,21 +64,40 @@ class MLDepthEstimator : public IDepthEstimator {
   static cv::Mat normalizeDepth(const cv::Mat& depth);
 
   /**
-   * @brief Implementation of IDepthEstimator::get_depth.
-   * 
-   * Estimates depth at the center of the bounding box by running
-   * inference on the frame and extracting the depth value.
-   * 
+   * @brief Get depth at bounding box center.
+   *
+   * Runs inference and extracts depth value at bbox center.
+   *
    * @param frame Input image frame
    * @param bbox Bounding box region
    * @return Depth value in meters
    */
   float get_depth(const cv::Mat& frame, cv::Rect bbox) override;
 
+  /**
+   * @brief Set current frame ID for caching.
+   * @param frame_id Current frame number
+   */
+  void set_frame_id(int frame_id);
+
+  /**
+   * @brief Get cached depth map.
+   * @return Cached depth map
+   */
+  cv::Mat get_cached_depth_map() const;
+
  private:
-  cv::dnn::Net net_;  ///< DNN network
-  int input_w_;       ///< Input width
-  int input_h_;       ///< Input height
+  Ort::Env env_;                           ///< ONNX Runtime environment
+  Ort::SessionOptions session_options_;    ///< Session options
+  std::unique_ptr<Ort::Session> session_;  ///< ONNX Runtime session
+  Ort::MemoryInfo memory_info_;            ///< Memory info
+  int input_w_;                            ///< Input width
+  int input_h_;                            ///< Input height
+
+  // Caching for performance
+  cv::Mat cached_depth_map_;        ///< Cached depth map
+  int cached_depth_frame_id_ = -1;  ///< Frame ID of cached depth map
+  int current_frame_id_ = 0;        ///< Current frame ID
 };
 
 }  // namespace perception

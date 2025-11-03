@@ -70,3 +70,21 @@ __pycache__/
 *.zip
 *.tar
 *.tar.gz
+
+# ========================
+# Project-specific exclusions
+# ========================
+# ONNX Runtime (users install this themselves)
+onnxruntime/
+
+# Generated documentation (users can build this with `make docs`)
+docs/html/
+
+# Results and output files
+results/*.jpg
+results/*.mp4
+results/*.txt
+results/output_*
+
+# Temporary model outputs
+*_detected.*
