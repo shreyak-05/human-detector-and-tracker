@@ -44,8 +44,9 @@ std::vector<Detection> DetectorTracker::detect(const cv::Mat& frame) {
       post_process(output, frame.cols, frame.rows, confidence_threshold_);
 
   // Only print summary every 50 frames to reduce console spam further
-  if (frame_count_ % 50 == 1) {
-    std::cout << "Found " << detections.size() << " human(s)" << std::endl;
+  if (frame_count_ % 50 == 1 && !detections.empty()) {
+    std::cout << "Detection summary: " << detections.size()
+              << " human(s) detected" << std::endl;
   }
 
   return detections;
@@ -163,9 +164,9 @@ std::vector<Detection> DetectorTracker::post_process(const cv::Mat& output,
   // Print structured summary (only occasionally to reduce spam)
   static int call_count = 0;
   call_count++;
-  if (call_count % 10 == 1 && max_person_conf > 0.0f) {
+  if (call_count % 30 == 1 && max_person_conf > 0.0f) {
     std::cout << "Detection: " << boxes.size() << " candidates, "
-              << indices.size() << " after NMS (max confidence: " << std::fixed
+              << indices.size() << " after NMS (confidence: " << std::fixed
               << std::setprecision(3) << max_person_conf << ")" << std::endl;
   }
 

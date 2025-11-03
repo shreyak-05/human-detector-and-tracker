@@ -85,6 +85,15 @@ int main(int argc, char** argv) {
 
       auto positions = detector.get_3d_positions(frame);
 
+      // Print coordinates to console
+      std::cout << "Found " << positions.size() << " human(s)" << std::endl;
+      for (const auto& det : positions) {
+        std::cout << "  Human ID " << det.detection_id
+                  << ": Position (x=" << std::fixed << std::setprecision(2)
+                  << det.position.x << "m, y=" << det.position.y
+                  << "m, z=" << det.position.z << "m)" << std::endl;
+      }
+
       // Draw results
       for (const auto& det : positions) {
         cv::rectangle(frame, det.bbox, cv::Scalar(0, 255, 0), 2);
@@ -274,6 +283,18 @@ int main(int argc, char** argv) {
                 positions.push_back({track.id, track.det.box, pos});
               }
             }
+          }
+        }
+
+        // Print 3D coordinates for this frame
+        if (!positions.empty()) {
+          std::cout << "Frame " << frame_count << " - Detected "
+                    << positions.size() << " human(s):" << std::endl;
+          for (const auto& det : positions) {
+            std::cout << "  ID " << det.detection_id << ": x=" << std::fixed
+                      << std::setprecision(2) << det.position.x
+                      << "m, y=" << det.position.y << "m, z=" << det.position.z
+                      << "m" << std::endl;
           }
         }
 

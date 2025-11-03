@@ -19,8 +19,11 @@ set(ONNXRUNTIME_INCLUDE_DIRS "${ONNXRUNTIME_ROOT_PATH}/include")
 set(ONNXRUNTIME_LIB "${ONNXRUNTIME_ROOT_PATH}/lib/libonnxruntime.so")
 
 # Check if ONNX Runtime exists
-if(NOT EXISTS ${ONNXRUNTIME_LIB})
-    message(FATAL_ERROR "ONNX Runtime library not found at ${ONNXRUNTIME_LIB}
+if(EXISTS ${ONNXRUNTIME_LIB})
+  message(STATUS "Found ONNX Runtime: ${ONNXRUNTIME_LIB}")
+  message(STATUS "ONNX Runtime includes: ${ONNXRUNTIME_INCLUDE_DIRS}")
+else()
+  message(FATAL_ERROR "ONNX Runtime library not found at ${ONNXRUNTIME_LIB}
 
 Please install ONNX Runtime:
 1. Download: wget https://github.com/microsoft/onnxruntime/releases/download/v1.16.3/onnxruntime-linux-x64-1.16.3.tgz
@@ -28,26 +31,6 @@ Please install ONNX Runtime:
 3. Rename: mv onnxruntime-linux-x64-1.16.3 onnxruntime
 
 See README.md for detailed installation instructions.")
-endif()
-
-message(STATUS "Found ONNX Runtime: ${ONNXRUNTIME_LIB}")
-message(STATUS "ONNX Runtime includes: ${ONNXRUNTIME_INCLUDE_DIRS}")
-# Find the library file
-# --- ONNX Runtime setup (manual import from pip installation) ---
-execute_process(
-  COMMAND python3 -c "import onnxruntime, os; print(os.path.dirname(onnxruntime.__file__))"
-  OUTPUT_VARIABLE ONNXRUNTIME_DIR
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-# pip installs usually place libs under onnxruntime/capi/
-set(ONNXRUNTIME_LIB ${ONNXRUNTIME_DIR}/capi/libonnxruntime.so.1.19.2)
-set(ONNXRUNTIME_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/onnxruntime/include)
-
-if(EXISTS ${ONNXRUNTIME_LIB})
-  message(STATUS "Found ONNX Runtime at: ${ONNXRUNTIME_LIB}")
-else()
-  message(FATAL_ERROR "ONNX Runtime library not found — expected at ${ONNXRUNTIME_LIB}")
 endif()
 
 # Make the include directory and library available

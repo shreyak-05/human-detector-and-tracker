@@ -27,6 +27,14 @@ dist/
 onnxruntime/
 results/
 
+# ========================
+# Large model files (use Git LFS)
+# ========================
+*.onnx
+models/*.onnx
+!models/yolov8n.onnx
+!models/depth_anything_small.onnx
+
 
 # ========================
 # CMake & Code Coverage
@@ -96,8 +104,16 @@ coverage/
 *.html
 
 # ========================
-# Documentation build
+# Documentation build outputs (exclude generated docs)
 # ========================
-# docs/html/
-# docs/latex/
-# docs/xml/
+docs/html/
+docs/latex/
+docs/xml/
+docs/man/
+docs/rtf/
+*.doxygen_sqlite3
+
+# Keep important docs but exclude generated content
+!docs/*.pdf
+!docs/*.md
+!docs/*.xlsx
