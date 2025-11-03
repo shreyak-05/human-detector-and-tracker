@@ -48,12 +48,11 @@ using namespace perception;
  * @brief Main entry point for the human detection and tracking application.
  *
  * Supports multiple input modes:
- * - Camera: Real-time detection from webcam (default)
- * - Video: Process video file frame by frame
+ * - Video: Process video file frame by frame (default)
  * - Image: Single image detection and visualization
  *
  * @param argc Number of command-line arguments
- * @param argv Command-line arguments. Optional: "test_video", "test_image", or path to video/image file
+ * @param argv Command-line arguments: "test_video", "test_image", or path to video/image file
  * @return Exit code: 0 on success, non-zero on error
  */
 int main(int argc, char** argv) {
@@ -65,9 +64,9 @@ int main(int argc, char** argv) {
       (Mat_<double>(3, 3) << 500.0, 0, 320.0, 0, 500.0, 240.0, 0, 0, 1.0);
 
   // Input mode
-  enum InputMode { CAMERA, VIDEO, IMAGE };
-  InputMode mode = CAMERA;
-  std::string input_path;
+  enum InputMode { VIDEO, IMAGE };
+  InputMode mode = VIDEO;  // Default to test video
+  std::string input_path = "models/test_video.mp4";  // Default path
 
   // Parse arguments
   if (argc > 1) {
@@ -85,6 +84,13 @@ int main(int argc, char** argv) {
                  : VIDEO;
       input_path = arg;
     }
+  } else {
+    // No arguments provided - show usage
+    std::cout << "Usage: " << argv[0] << " <test_video|test_image|path_to_file>" << std::endl;
+    std::cout << "  test_video  - Run detection on test video" << std::endl;
+    std::cout << "  test_image  - Run detection on test image" << std::endl;
+    std::cout << "  <file_path> - Run detection on custom video/image file" << std::endl;
+    return 0;
   }
 
   try {
@@ -133,26 +139,24 @@ int main(int argc, char** argv) {
       cv::waitKey(0);
 
     } else {
-      // === VIDEO/CAMERA MODE ===
+      // === VIDEO MODE ===
       // Setup capture
       VideoCapture cap;
-      cap.open(mode == CAMERA ? 0 : input_path);
+      cap.open(input_path);
       if (!cap.isOpened()) {
-        std::cerr << "Error: Cannot open video source" << std::endl;
+        std::cerr << "Error: Cannot open video file: " << input_path << std::endl;
         return -1;
       }
 
       // Setup output video writer
       VideoWriter video_writer;
-      if (mode == VIDEO) {
-        system("mkdir -p results");
-        int fourcc = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
-        double fps = cap.get(cv::CAP_PROP_FPS);
-        cv::Size frame_size((int)cap.get(cv::CAP_PROP_FRAME_WIDTH),
-                            (int)cap.get(cv::CAP_PROP_FRAME_HEIGHT));
-        video_writer.open("results/output_detected.mp4", fourcc, fps,
-                          frame_size);
-      }
+      system("mkdir -p results");
+      int fourcc = cv::VideoWriter::fourcc('m', 'p', '4', 'v');
+      double fps = cap.get(cv::CAP_PROP_FPS);
+      cv::Size frame_size((int)cap.get(cv::CAP_PROP_FRAME_WIDTH),
+                          (int)cap.get(cv::CAP_PROP_FRAME_HEIGHT));
+      video_writer.open("results/output_detected.mp4", fourcc, fps,
+                        frame_size);
 
       // Optimization settings
       const int depth_skip_interval = 30;     // Run depth every 30 frames
