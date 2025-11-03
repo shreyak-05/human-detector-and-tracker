@@ -15,9 +15,11 @@
  */
 
 #pragma once
-#include "idepth_estimator.hpp"
-#include <opencv2/opencv.hpp>
 #include <onnxruntime_cxx_api.h>
+
+#include <opencv2/opencv.hpp>
+
+#include "idepth_estimator.hpp"
 
 namespace perception {
 
@@ -52,9 +54,9 @@ class MLDepthEstimator : public IDepthEstimator {
 
   /**
    * @brief Get depth at bounding box center.
-   * 
+   *
    * Runs inference and extracts depth value at bbox center.
-   * 
+   *
    * @param frame Input image frame
    * @param bbox Bounding box region
    * @return Depth value in meters
@@ -74,17 +76,17 @@ class MLDepthEstimator : public IDepthEstimator {
   cv::Mat get_cached_depth_map() const;
 
  private:
-  Ort::Env env_;                   ///< ONNX Runtime environment
-  Ort::SessionOptions session_options_;  ///< Session options
-  std::unique_ptr<Ort::Session> session_; ///< ONNX Runtime session
-  Ort::MemoryInfo memory_info_;    ///< Memory info
-  int input_w_;       ///< Input width
-  int input_h_;       ///< Input height
-  
+  Ort::Env env_;                           ///< ONNX Runtime environment
+  Ort::SessionOptions session_options_;    ///< Session options
+  std::unique_ptr<Ort::Session> session_;  ///< ONNX Runtime session
+  Ort::MemoryInfo memory_info_;            ///< Memory info
+  int input_w_;                            ///< Input width
+  int input_h_;                            ///< Input height
+
   // Caching for performance
-  cv::Mat cached_depth_map_;       ///< Cached depth map
-  int cached_depth_frame_id_ = -1; ///< Frame ID of cached depth map
-  int current_frame_id_ = 0;       ///< Current frame ID
+  cv::Mat cached_depth_map_;        ///< Cached depth map
+  int cached_depth_frame_id_ = -1;  ///< Frame ID of cached depth map
+  int current_frame_id_ = 0;        ///< Current frame ID
 };
 
 }  // namespace perception

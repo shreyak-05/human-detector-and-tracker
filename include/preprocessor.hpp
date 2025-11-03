@@ -1,7 +1,9 @@
 /*
  * Copyright 2025 Shreya Kalyanaraman and Tirth Sadaria
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed  cv::Mat process(const cv::Mat& frame);
+
+ private: Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -28,7 +30,7 @@ namespace perception {
 
 /**
  * @brief Interface for image preprocessing.
- * 
+ *
  * Defines contract for converting raw frames to neural network input blobs.
  * Supports dependency injection for testing and flexible implementation.
  */
@@ -38,12 +40,12 @@ class IPreprocessor {
    * @brief Virtual destructor for polymorphic destruction.
    */
   virtual ~IPreprocessor() = default;
-  
+
   /**
    * @brief Process image frame into a blob for DNN.
-   * 
+   *
    * Converts raw image to 4D tensor suitable for neural network input.
-   * 
+   *
    * @param frame Input image frame (BGR format)
    * @return 4D blob tensor [N,C,H,W] where N=1, C=3
    */
@@ -65,9 +67,9 @@ class Preprocessor : public IPreprocessor {
 
   /**
    * @brief Process image frame into a 4D blob for DNN.
-   * 
+   *
    * Resizes, normalizes, and creates 4D blob tensor for network input.
-   * 
+   *
    * @param frame Input image (BGR format)
    * @return 4D blob tensor [N,C,H,W]
    */

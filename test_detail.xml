@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites tests="12" failures="0" disabled="0" errors="0" time="0.043" timestamp="2025-11-02T18:42:55.559" name="AllTests">
+  <testsuite name="DepthEstimatorTest" tests="3" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-11-02T18:42:55.559">
+    <testcase name="BoundingBoxValidation" file="/home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_depth.cpp" line="5" status="run" result="completed" time="0." timestamp="2025-11-02T18:42:55.559" classname="DepthEstimatorTest" />
+    <testcase name="FrameDimensionValidation" file="/home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_depth.cpp" line="19" status="run" result="completed" time="0." timestamp="2025-11-02T18:42:55.559" classname="DepthEstimatorTest" />
+    <testcase name="DefaultDepthValue" file="/home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_depth.cpp" line="30" status="run" result="completed" time="0." timestamp="2025-11-02T18:42:55.559" classname="DepthEstimatorTest" />
+  </testsuite>
+  <testsuite name="DetectorTrackerTest" tests="3" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-11-02T18:42:55.559">
+    <testcase name="PostProcessingYOLOOutput" file="/home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_detector_tracker.cpp" line="19" status="run" result="completed" time="0." timestamp="2025-11-02T18:42:55.559" classname="DetectorTrackerTest" />
+    <testcase name="IoUCalculation" file="/home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_detector_tracker.cpp" line="43" status="run" result="completed" time="0." timestamp="2025-11-02T18:42:55.559" classname="DetectorTrackerTest" />
+    <testcase name="IoUNonOverlapping" file="/home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_detector_tracker.cpp" line="57" status="run" result="completed" time="0." timestamp="2025-11-02T18:42:55.559" classname="DetectorTrackerTest" />
+  </testsuite>
+  <testsuite name="PreprocessorTest" tests="3" failures="0" disabled="0" skipped="0" errors="0" time="0.043" timestamp="2025-11-02T18:42:55.559">
+    <testcase name="OutputDimensions" file="/home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_preprocessor.cpp" line="14" status="run" result="completed" time="0.008" timestamp="2025-11-02T18:42:55.559" classname="PreprocessorTest" />
+    <testcase name="ProcessDifferentSizes" file="/home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_preprocessor.cpp" line="26" status="run" result="completed" time="0.03" timestamp="2025-11-02T18:42:55.567" classname="PreprocessorTest" />
+    <testcase name="OutputDataType" file="/home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_preprocessor.cpp" line="41" status="run" result="completed" time="0.004" timestamp="2025-11-02T18:42:55.597" classname="PreprocessorTest" />
+  </testsuite>
+  <testsuite name="TransformerTest" tests="3" failures="0" disabled="0" skipped="0" errors="0" time="0." timestamp="2025-11-02T18:42:55.602">
+    <testcase name="BasicProjection" file="/home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_transformer.cpp" line="17" status="run" result="completed" time="0." timestamp="2025-11-02T18:42:55.602" classname="TransformerTest" />
+    <testcase name="CenterProjection" file="/home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_transformer.cpp" line="29" status="run" result="completed" time="0." timestamp="2025-11-02T18:42:55.602" classname="TransformerTest" />
+    <testcase name="DepthScaling" file="/home/shreya/human_tracker_midterm/cpp-boilerplate-v2/test/test_transformer.cpp" line="41" status="run" result="completed" time="0." timestamp="2025-11-02T18:42:55.602" classname="TransformerTest" />
+  </testsuite>
+</testsuites>

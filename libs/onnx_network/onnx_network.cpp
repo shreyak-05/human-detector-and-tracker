@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- /**
+/**
  * @file onnx_network.cpp
  * @brief Implementation of ONNX neural network
  * @author Shreya Kalyanaraman
@@ -23,9 +23,9 @@
 
 #include "onnx_network.hpp"
 
+#include <iostream>
 #include <opencv2/dnn.hpp>
 #include <stdexcept>
-#include <iostream>
 
 using namespace cv;
 using namespace perception;
@@ -37,7 +37,8 @@ OnnxNetwork::OnnxNetwork(const std::string& model_path) {
       throw std::runtime_error("Failed to load ONNX model: " + model_path);
     }
   } catch (const cv::Exception& e) {
-    throw std::runtime_error("Error loading ONNX model: " + std::string(e.what()));
+    throw std::runtime_error("Error loading ONNX model: " +
+                             std::string(e.what()));
   }
 }
 
@@ -46,4 +47,3 @@ Mat OnnxNetwork::forward(const Mat& blob) {
   Mat output = net_.forward();
   return output;
 }
-

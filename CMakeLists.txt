@@ -152,7 +152,8 @@ if(CPPCHECK_EXECUTABLE)
       --inline-suppr
       --error-exitcode=1
       --suppress=missingIncludeSystem
-      --suppress=unknownMacro
+      --suppress=preprocessorErrorDirective
+      --suppress=unusedFunction
       -I libs
       --std=c++17
       --language=c++

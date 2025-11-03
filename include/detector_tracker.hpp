@@ -43,12 +43,13 @@ namespace perception {
  */
 class DetectorTracker {
   friend class DetectorTrackerTest_PostProcessYoloOutput_Test;
+
  public:
   /**
    * @brief Constructor with dependency injection.
-   * 
+   *
    * Injects all dependencies for clean separation of concerns and testing.
-   * 
+   *
    * @param preprocessor Image preprocessor for network input
    * @param network Neural network for detection inference
    * @param depth_estimator Depth estimator for 3D positioning
@@ -69,14 +70,12 @@ class DetectorTracker {
    * @param person_class_id Person class ID (default: 0)
    * @return Vector of active tracks
    */
-  std::vector<Track> step(const cv::Mat& frame, float conf_thresh = 0.4f,
-                          float nms_thresh = 0.45f, int person_class_id = 0);
 
   /**
    * @brief Detect humans in a frame.
-   * 
+   *
    * Runs the full detection pipeline: preprocess → inference → post-process.
-   * 
+   *
    * @param frame Input video frame (BGR format)
    * @return Vector of filtered detections
    */
@@ -84,9 +83,9 @@ class DetectorTracker {
 
   /**
    * @brief Get 3D positions of detected humans.
-   * 
+   *
    * Extends detect() with depth estimation and 3D transformation.
-   * 
+   *
    * @param frame Input video frame (BGR format)
    * @return Vector of 3D detections with positions
    */
@@ -94,18 +93,17 @@ class DetectorTracker {
 
   /**
    * @brief Post-process YOLO output to extract detections.
-   * 
+   *
    * Parses YOLO tensor, filters by confidence, and applies NMS.
-   * 
+   *
    * @param output YOLO network output tensor
    * @param img_width Original image width
-   * @param img_height Original image height  
+   * @param img_height Original image height
    * @param conf_thresh Confidence threshold
    * @return Vector of filtered detections
    */
-  std::vector<Detection> post_process(const cv::Mat& output, 
-                                       int img_width, int img_height,
-                                       float conf_thresh) const;
+  std::vector<Detection> post_process(const cv::Mat& output, int img_width,
+                                      int img_height, float conf_thresh) const;
 
   /**
    * @brief Calculate Intersection over Union between two rectangles.
@@ -116,15 +114,15 @@ class DetectorTracker {
   float iou(const cv::Rect& a, const cv::Rect& b) const;
 
  private:
-
-  std::shared_ptr<IPreprocessor> preprocessor_;     ///< Image preprocessor for network input
-  std::shared_ptr<INetwork> network_;               ///< Neural network for inference
-  std::shared_ptr<IDepthEstimator> depth_estimator_; ///< Depth estimator
-  std::shared_ptr<ITransformer> transformer_;       ///< 3D coordinate transformer
-  float confidence_threshold_;                     ///< Confidence threshold for filtering
-  int next_id_{0};                                  ///< Next available track ID
-  std::vector<Track> tracks_;                       ///< Currently active tracks
-  int frame_count_{0};                              ///< Frame counter for optimized logging
+  std::shared_ptr<IPreprocessor>
+      preprocessor_;                   ///< Image preprocessor for network input
+  std::shared_ptr<INetwork> network_;  ///< Neural network for inference
+  std::shared_ptr<IDepthEstimator> depth_estimator_;  ///< Depth estimator
+  std::shared_ptr<ITransformer> transformer_;  ///< 3D coordinate transformer
+  float confidence_threshold_;  ///< Confidence threshold for filtering
+  int next_id_{0};              ///< Next available track ID
+  std::vector<Track> tracks_;   ///< Currently active tracks
+  int frame_count_{0};          ///< Frame counter for optimized logging
 };
 
 }  // namespace perception

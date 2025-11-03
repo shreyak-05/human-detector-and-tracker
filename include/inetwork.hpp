@@ -29,7 +29,7 @@ namespace perception {
 
 /**
  * @brief Interface for neural network inference.
- * 
+ *
  * This abstract interface defines the contract for neural network operations,
  * allowing for dependency injection and mocking in unit tests.
  */
@@ -39,13 +39,13 @@ class INetwork {
    * @brief Virtual destructor for polymorphic destruction.
    */
   virtual ~INetwork() = default;
-  
+
   /**
    * @brief Forward pass through the neural network.
-   * 
+   *
    * This pure virtual method must be implemented by concrete network classes.
    * It takes a preprocessed blob and returns the network's output.
-   * 
+   *
    * @param blob Preprocessed input blob [N,C,H,W] where typically N=1
    * @return Network output tensor
    */
@@ -53,4 +53,3 @@ class INetwork {
 };
 
 }  // namespace perception
-
