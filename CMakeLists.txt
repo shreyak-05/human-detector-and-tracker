@@ -45,9 +45,9 @@ set(ONNXRUNTIME_LIB ${ONNXRUNTIME_DIR}/capi/libonnxruntime.so.1.19.2)
 set(ONNXRUNTIME_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/onnxruntime/include)
 
 if(EXISTS ${ONNXRUNTIME_LIB})
-  message(STATUS "✅ Found ONNX Runtime at: ${ONNXRUNTIME_LIB}")
+  message(STATUS "Found ONNX Runtime at: ${ONNXRUNTIME_LIB}")
 else()
-  message(FATAL_ERROR "❌ ONNX Runtime library not found — expected at ${ONNXRUNTIME_LIB}")
+  message(FATAL_ERROR "ONNX Runtime library not found — expected at ${ONNXRUNTIME_LIB}")
 endif()
 
 # Make the include directory and library available
