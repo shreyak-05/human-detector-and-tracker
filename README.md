@@ -129,26 +129,18 @@ When `get_3d_positions(frame)` is called:
 
 ## Dependencies
 
-| **Dependency** | **Version** | **Installation** | **License** |
-|:---------------|:------------|:-----------------|:------------|
-| **C++** | C++17 or higher | `sudo apt install build-essential` | - |
-| **CMake** | 3.14+ | `sudo apt install cmake` | BSD 3-Clause |
-| **OpenCV** | 4.6.0+ (with DNN) | Build from source or `libopencv-dev` | Apache 2.0 |
-| **ONNX Runtime** | 1.16.3+ | Download from GitHub releases | MIT License |
-| **GoogleTest** | 1.10+ | Auto-downloaded by CMake | BSD 3-Clause |
-| **Git LFS** | Latest | `sudo apt install git-lfs` | GPL 2.0 |
+| **Dependency** | **Version** | **License** |
+|:---------------|:------------|:------------|
+| C++ | C++17 or higher | - |
+| CMake | 3.14+ | BSD 3-Clause License |
+| OpenCV | 4.6.0+ (with DNN module) | Apache 2.0 License |
+| ONNX Runtime | 1.16.3+ | MIT License |
+| GoogleTest | 1.10+ | BSD 3-Clause License |
+| Git LFS | Latest | GPL 2.0 |
 
-### Critical Dependencies
-
-**ONNX Runtime (Required):**
-- Used for Depth Anything V2 model inference
-- Must be manually installed in project directory
-- See installation steps below
-
-**OpenCV 4.6.0+ (Required):**
-- Ubuntu 22.04 default (4.5.4) is **incompatible**
-- Must build from source or use newer package
-- Required for YOLOv8 ONNX model support
+**Important**: 
+- The default OpenCV on Ubuntu 22.04 (4.5.4) is **not compatible** with the required ONNX models. You must build OpenCV 4.6.0 or newer from source.
+- ONNX Runtime is required for Depth Anything V2 model inference (custom operators not supported by OpenCV DNN).
 
 ## Installation
 
@@ -199,48 +191,6 @@ ls onnxruntime/
 # Should show: include/ lib/ ThirdPartyNotices.txt VERSION_NUMBER
 ```
 
-#### Option B: Alternative Installation Methods
-
-**Using pip (if available):**
-```bash
-# Install ONNX Runtime via pip
-pip install onnxruntime
-
-# The CMakeLists.txt will automatically detect this installation
-```
-
-**Manual setup for different architectures:**
-```bash
-# For ARM64/Mac users, download appropriate version:
-# wget https://github.com/microsoft/onnxruntime/releases/download/v1.16.3/onnxruntime-linux-aarch64-1.16.3.tgz
-# wget https://github.com/microsoft/onnxruntime/releases/download/v1.16.3/onnxruntime-osx-arm64-1.16.3.tgz
-```
-
-#### Troubleshooting ONNX Runtime Installation
-
-If you encounter build errors related to ONNX Runtime:
-
-1. **Verify directory structure:**
-   ```bash
-   ls -la onnxruntime/
-   # Expected: include/ lib/ (directories) + other files
-   
-   ls -la onnxruntime/lib/
-   # Expected: libonnxruntime.so* files
-   ```
-
-2. **Check library symlinks:**
-   ```bash
-   # Create symlink if missing
-   cd onnxruntime/lib/
-   ln -sf libonnxruntime.so.1.16.3 libonnxruntime.so
-   ```
-
-3. **Environment variables (if needed):**
-   ```bash
-   export ONNXRUNTIME_ROOT_PATH=$(pwd)/onnxruntime
-   export LD_LIBRARY_PATH=$ONNXRUNTIME_ROOT_PATH/lib:$LD_LIBRARY_PATH
-   ```
 
 ### 4. Install OpenCV 4.6.0+ (if not already installed)
 
@@ -387,63 +337,6 @@ The following features are partially implemented or require completion:
 - [ ] Complete unit tests for all components
 - [ ] Add performance benchmarking
 - [ ] Add ROS2 integration support
-
-## Known Issues / Troubleshooting
-
-### Build Issues
-
-**"ONNX Runtime library not found" Error:**
-```bash
-# Solution 1: Verify ONNX Runtime installation
-ls -la onnxruntime/lib/libonnxruntime.so*
-
-# Solution 2: Create missing symlink
-cd onnxruntime/lib/
-ln -sf libonnxruntime.so.1.16.3 libonnxruntime.so
-
-# Solution 3: Re-download ONNX Runtime
-rm -rf onnxruntime/
-wget https://github.com/microsoft/onnxruntime/releases/download/v1.16.3/onnxruntime-linux-x64-1.16.3.tgz
-tar -xzf onnxruntime-linux-x64-1.16.3.tgz
-mv onnxruntime-linux-x64-1.16.3 onnxruntime
-```
-
-**OpenCV Version Issues:**
-```bash
-# Check your OpenCV version
-pkg-config --modversion opencv4
-
-# If version < 4.6.0, you need to build from source:
-# https://docs.opencv.org/4.6.0/d7/d9f/tutorial_linux_install.html
-```
-
-**Git LFS Model Download Issues:**
-```bash
-# Re-install Git LFS and pull models
-sudo apt install git-lfs
-git lfs install
-git lfs pull
-
-# Verify model files exist
-ls -la models/*.onnx
-```
-
-### Runtime Issues
-
-**Application Crashes on Startup:**
-- Ensure all model files are downloaded: `git lfs pull`
-- Verify ONNX Runtime library path: `export LD_LIBRARY_PATH=$(pwd)/onnxruntime/lib:$LD_LIBRARY_PATH`
-- Check camera permissions for webcam mode: `sudo usermod -a -G video $USER`
-
-**Poor Detection Performance:**
-- Verify model files are not corrupted: Check file sizes match expected values
-- Ensure sufficient lighting for camera input
-- Try different confidence thresholds in the code
-
-**Memory Issues:**
-- Close other applications to free up RAM
-- Use smaller input resolution for video processing
-- Monitor system resources: `htop`
 
 ## Contributing
 
