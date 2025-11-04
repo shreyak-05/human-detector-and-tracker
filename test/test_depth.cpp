@@ -1,3 +1,8 @@
+/**
+ * @file test_depth.cpp
+ * @author Shreya Kalyanaraman
+ * @author Tirth Sadaria
+ */
 #include <gtest/gtest.h>
 #include <opencv2/opencv.hpp>
 #include <fstream>
