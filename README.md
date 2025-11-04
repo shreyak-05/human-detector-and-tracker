@@ -10,9 +10,7 @@
 ## Table of Contents
 
 - [Overview](#overview)
-- [Features](#features)
 - [Architecture](#architecture)
-- [Project Structure](#project-structure)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Development](#development)
@@ -22,6 +20,7 @@
 - [Performance](#performance)
 - [Authors](#authors)
 - [License](#license)
+- [Additional Resources](#additional-resources)
 
 ---
 
@@ -44,11 +43,6 @@ This project provides a production-ready C++ module for real-time human detectio
 - Real-time perception pipelines
 
 ---
-
-## Project Video
-
-[Phase-0 video](https://youtu.be/bDlo0ityvEo)
-[Phase-1 video](https://youtu.be/hidSe_sSeDY)
 
 ### Core Functionality
 - **Human Detection**: YOLOv8-based detection with configurable confidence thresholds
@@ -88,14 +82,7 @@ The system follows a **modular, interface-based design** using dependency inject
 
 **Modularity**: Components are independent and can be replaced individually (e.g., swap monocular depth for stereo vision).
 
-### Activity Diagram
-![Activity Diagram](UML/ActivityDiagram.png)
-
-### UML Class Diagram
-![UML Class Diagram](UML/ClassDiagram.png)
-
-### Sequence Diagram
-![Sequence Diagram](UML/SequenceDiagram.png)
+For detailed UML diagrams, see the [UML Diagrams](#uml-diagrams) section below.
 
 
 
@@ -205,17 +192,16 @@ cmake --build build --target cpp-check    # Static analysis
 ### Quick Start
 
 ```bash
-# Run with camera (default)
-./build/app/demo camera
-
 # Run with test video
 ./build/app/demo test_video
 
 # Run with test image
 ./build/app/demo test_image
 
-# Run with custom video/image file
+# Run with custom video file
 ./build/app/demo /path/to/your/video.mp4
+
+# Run with custom image file
 ./build/app/demo /path/to/your/image.jpg
 ```
 
@@ -223,10 +209,11 @@ cmake --build build --target cpp-check    # Static analysis
 
 The application supports multiple input modes:
 
-- **`camera`** (default): Real-time detection from webcam (device 0)
 - **`test_video`**: Process test video from `models/test_video.mp4`
 - **`test_image`**: Process test image from `models/test_image.jpg`
-- **`<path>`**: Process any video or image file (auto-detected by extension)
+- **`<path>`**: Process any video or image file (auto-detected by file extension)
+
+**Note**: If no arguments are provided, the application displays usage information.
 
 ### Output
 
@@ -241,9 +228,7 @@ Frame 150 - Detected 2 human(s):
   ID 2: x=-0.87m, y=0.32m, z=1.95m
 ```
 
-### Keyboard Controls
 
-- **`q`**: Quit the application
 
 ---
 
@@ -321,12 +306,12 @@ The system architecture is documented through comprehensive UML diagrams located
 ### Activity Diagram
 ![Activity Diagram](UML/Final/ActivityDiagram.png)
 
-Shows the overall workflow of the human detection and tracking system, including frame processing, detection, tracking, and depth estimation pipelines.
+Illustrates the overall workflow of the human detection and tracking system, including frame processing, detection, tracking, and depth estimation pipelines.
 
 ### Class Diagram
 ![Class Diagram](UML/Final/ClassDiagram.png)
 
-Illustrates the class structure, interfaces, and relationships within the `perception` namespace, demonstrating the dependency injection architecture.
+Shows the class structure, interfaces, and relationships within the `perception` namespace, demonstrating the dependency injection architecture and component interactions.
 
 ### Sequence Diagram
 ![Sequence Diagram](UML/Final/SequenceDiagram.png)
@@ -415,7 +400,7 @@ This approach balances accuracy with real-time performance, achieving smooth fra
 
 ## License
 
-**Apache License 2.0** - see [LICENSE](LICENSE) file for details.
+This project is licensed under the **Apache License 2.0** - see the [LICENSE](LICENSE) file for details.
 
 We chose the Apache 2.0 License for this project because it provides the perfect balance of openness and legal protection for both academic and commercial use. Apache 2.0 is fully compatible with all our dependencies (OpenCV, ONNX Runtime, GoogleTest) and includes explicit patent grants that protect contributors and users from patent litigation—a crucial consideration for AI/ML projects. Additionally, it's an industry-standard license widely adopted in the robotics and computer vision community, ensuring our work can be easily integrated into both open-source and proprietary systems without legal barriers.
 
@@ -423,11 +408,15 @@ We chose the Apache 2.0 License for this project because it provides the perfect
 
 ## Additional Resources
 
-- **Project Video**: [Phase-0](https://youtu.be/bDlo0ityvEo) | [Phase-1](https://youtu.be/hidSe_sSeDY)
-- **Software Plan**: [Phase 0 Proposal](docs/Midterm_Phase0_Group3_doc.pdf)
-- **Quad Chart**: [Quad Chart](docs/ENPM700_Mid_Term_Phase0_Group3_Quad_Chart.pdf)
-- **AIP Process**: [Product Backlog and Tracking](https://docs.google.com/spreadsheets/d/1IM-xvcocttc4i5XZVrW3Yo8iH0jAUDamT1dSvXJd6_k/edit?usp=sharing)
-- **Sprint Documentation**: [Sprint Document](https://docs.google.com/document/d/1fMpWl6SluhpQ1LkTb-6vp8wfKV5AaToe3W1v8zkWFfc/edit?usp=sharing)
+- **Project Videos**: 
+  - [Phase-0 Demo](https://youtu.be/bDlo0ityvEo)
+  - [Phase-1 Demo](https://youtu.be/hidSe_sSeDY)
+- **Documentation**:
+  - [Phase 0 Proposal](docs/Midterm_Phase0_Group3_doc.pdf)
+  - [Quad Chart](docs/ENPM700_Mid_Term_Phase0_Group3_Quad_Chart.pdf)
+- **Project Management**:
+  - [Product Backlog and Tracking](https://docs.google.com/spreadsheets/d/1IM-xvcocttc4i5XZVrW3Yo8iH0jAUDamT1dSvXJd6_k/edit?usp=sharing)
+  - [Sprint Documentation](https://docs.google.com/document/d/1fMpWl6SluhpQ1LkTb-6vp8wfKV5AaToe3W1v8zkWFfc/edit?usp=sharing)
 
 ---
 
