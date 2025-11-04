@@ -11,19 +11,15 @@
 #
 # version 1.1
 ##############################################################################
-
 name: Run Unit Test and Upload Coverage Report
-
 on:
   # Triggered whenever push to main
   push:
     branches: [ "main" ]
-
   # Triggered whenever a pull request is created on main
   pull_request:
     branches: [ "main" ]
     types: [opened]
-
   # Allow manual trigger
   workflow_dispatch:
 
@@ -32,7 +28,6 @@ jobs:
     # Create a container of the latest Ubuntu, other values could be
     # ubuntu-latest, ubuntu-22.04, etc.
     runs-on: ubuntu-22.04
-
     steps:
       # We want to use GitHub CI checkout version 3 to check out our branch
       - uses: actions/checkout@v3
@@ -52,7 +47,15 @@ jobs:
           tar -xzf onnxruntime-linux-x64-1.16.3.tgz
           mv onnxruntime-linux-x64-1.16.3 onnxruntime
 
-      - name: Configure CMake flags and build exectables
+      # Download Depth Anything V2 model
+      - name: Download Depth Anything V2 model
+        run: |
+          mkdir -p models
+          wget --no-verbose -O models/depth_anything_v2_vits.onnx \
+            https://huggingface.co/depth-anything/Depth-Anything-V2-Small/resolve/main/depth_anything_v2_vits.onnx
+          ls -lh models/
+
+      - name: Configure CMake flags and build executables
         env:
           MLD_MODEL: ${{ github.workspace }}/models/depth_anything_v2_vits.onnx
           LD_LIBRARY_PATH: ${{ github.workspace }}/onnxruntime/lib:${{ env.LD_LIBRARY_PATH }}
