@@ -52,8 +52,10 @@ jobs:
           tar -xzf onnxruntime-linux-x64-1.16.3.tgz
           mv onnxruntime-linux-x64-1.16.3 onnxruntime
 
-      # Build, run unit test, and generate coverage report
       - name: Configure CMake flags and build exectables
+        env:
+          MLD_MODEL: ${{ github.workspace }}/models/depth_anything_v2_vits.onnx }
+          LD_LIBRARY_PATH: ${{ github.workspace }}/onnxruntime/lib:${{ env.LD_LIBRARY_PATH }}
         run: |
           cmake -D WANT_COVERAGE=ON -D CMAKE_BUILD_TYPE=Debug -S ./ -B build/
           cmake --build build/ --clean-first --target all test_coverage
