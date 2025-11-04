@@ -4,7 +4,8 @@ add_executable(run_tests
   test_detector_tracker.cpp
   test_preprocessor.cpp
   test_transformer.cpp
-  )
+  test_onnx_network.cpp
+)
 
 # Link libraries
 target_link_libraries(run_tests PRIVATE

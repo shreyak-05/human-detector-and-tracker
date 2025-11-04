@@ -1,89 +1,103 @@
 /**
- * @file test_depth.cpp * @author Shreya Kalyanaraman
+ * @file test_depth.cpp
+ * @author Shreya Kalyanaraman
  * @author Tirth Sadaria
  */
 
 #include <gtest/gtest.h>
 #include <opencv2/opencv.hpp>
+#include <memory>
 #include "ml_depth_estimator.hpp"
 
-// Test 1: Bounding box validation with edge cases
-TEST(DepthEstimatorTest, BoundingBoxValidation) {
+class DepthEstimatorTest : public ::testing::Test {
+ protected:
+  void SetUp() override {
+    // Create depth estimator with test parameters
+    std::string model_path = "models/depth_anything_v2_vits.onnx";
+    try {
+      depth_estimator_ = std::make_unique<perception::MLDepthEstimator>(
+          model_path, 518, 518, false);
+    } catch (const std::exception& e) {
+      depth_estimator_ = nullptr;  // Model not available in test environment
+    }
+  }
+
+  std::unique_ptr<perception::MLDepthEstimator> depth_estimator_;
+};
+
+// Test 1: Constructor and parameter validation
+TEST_F(DepthEstimatorTest, ConstructorValidation) {
+  // Test constructor with invalid model path
+  EXPECT_THROW(
+    perception::MLDepthEstimator("invalid_path.onnx", 518, 518, false),
+    std::runtime_error
+  );
+  
+  // Test with zero dimensions
+  EXPECT_THROW(
+    perception::MLDepthEstimator("models/depth_anything_v2_vits.onnx", 0, 518, false),
+    std::runtime_error
+  );
+  
+  // Test with negative dimensions
+  EXPECT_THROW(
+    perception::MLDepthEstimator("models/depth_anything_v2_vits.onnx", -100, 518, false),
+    std::runtime_error
+  );
+}
+
+// Test 2: Depth estimation with valid inputs
+TEST_F(DepthEstimatorTest, ValidDepthEstimation) {
+  if (!depth_estimator_) {
+    GTEST_SKIP() << "Depth model not available in test environment";
+  }
+  
+  // Create test frame
   cv::Mat test_frame(480, 640, CV_8UC3, cv::Scalar(128, 128, 128));
   
-  // Valid bbox
-  cv::Rect valid_bbox(100, 100, 50, 50);
-  ASSERT_GT(valid_bbox.area(), 0);
-  ASSERT_GE(valid_bbox.x, 0);
-  ASSERT_GE(valid_bbox.y, 0);
-  ASSERT_LT(valid_bbox.x + valid_bbox.width, test_frame.cols);
+  // Test with valid bounding box
+  cv::Rect valid_bbox(100, 100, 100, 100);
+  float depth = depth_estimator_->get_depth(test_frame, valid_bbox);
   
-  // Invalid bbox (negative coordinates)
-  cv::Rect invalid_bbox(-10, -10, 5, 5);
-  ASSERT_TRUE(invalid_bbox.x < 0 || invalid_bbox.y < 0);
+  EXPECT_GT(depth, 0.0f);
+  EXPECT_LT(depth, 100.0f);  // Reasonable depth range
   
-  // Zero area bbox
-  cv::Rect zero_bbox(100, 100, 0, 0);
-  ASSERT_EQ(zero_bbox.area(), 0);
+  // Test with different bounding box sizes
+  cv::Rect small_bbox(200, 200, 50, 50);
+  float small_depth = depth_estimator_->get_depth(test_frame, small_bbox);
+  EXPECT_GT(small_depth, 0.0f);
   
-  // Out of bounds bbox
-  cv::Rect oob_bbox(700, 500, 100, 100);
-  ASSERT_TRUE(oob_bbox.x + oob_bbox.width > test_frame.cols);
+  cv::Rect large_bbox(50, 50, 200, 200);
+  float large_depth = depth_estimator_->get_depth(test_frame, large_bbox);
+  EXPECT_GT(large_depth, 0.0f);
 }
 
-// Test 2: Frame dimension validation with multiple formats
-TEST(DepthEstimatorTest, FrameDimensionValidation) {
-  // Test various frame sizes
-  cv::Mat small_frame(100, 100, CV_8UC3, cv::Scalar(150, 150, 150));
-  cv::Mat large_frame(1080, 1920, CV_8UC3, cv::Scalar(50, 50, 50));
+// Test 3: Edge cases and error handling
+TEST_F(DepthEstimatorTest, EdgeCasesAndErrorHandling) {
+  if (!depth_estimator_) {
+    GTEST_SKIP() << "Depth model not available in test environment";
+  }
   
-  ASSERT_GT(small_frame.rows * small_frame.cols, 0);
-  ASSERT_GT(large_frame.rows * large_frame.cols, 0);
-  ASSERT_EQ(small_frame.channels(), 3);
-  ASSERT_EQ(large_frame.channels(), 3);
+  cv::Mat test_frame(480, 640, CV_8UC3, cv::Scalar(128, 128, 128));
   
-  // Test different formats
-  cv::Mat gray_frame(480, 640, CV_8UC1, cv::Scalar(128));
-  cv::Mat float_frame(480, 640, CV_32FC3, cv::Scalar(0.5, 0.5, 0.5));
+  // Test with edge bounding boxes
+  cv::Rect edge_bbox(0, 0, 50, 50);  // Top-left corner
+  float edge_depth = depth_estimator_->get_depth(test_frame, edge_bbox);
+  EXPECT_GT(edge_depth, 0.0f);
   
-  ASSERT_EQ(gray_frame.channels(), 1);
-  ASSERT_EQ(float_frame.channels(), 3);
-  ASSERT_EQ(float_frame.type(), CV_32FC3);
+  // Test with bounding box at bottom-right
+  cv::Rect bottom_right(590, 430, 50, 50);
+  float br_depth = depth_estimator_->get_depth(test_frame, bottom_right);
+  EXPECT_GT(br_depth, 0.0f);
   
-  // Test empty frame detection
+  // Test with empty frame
   cv::Mat empty_frame;
-  ASSERT_TRUE(empty_frame.empty());
-  ASSERT_EQ(empty_frame.rows, 0);
-}
-
-// Test 3: Depth value validation and mathematical operations
-TEST(DepthEstimatorTest, DefaultDepthValue) {
-  float default_depth = 2.0f;
-  float min_depth = 0.1f;
-  float max_depth = 100.0f;
+  cv::Rect test_bbox(10, 10, 20, 20);
+  float empty_depth = depth_estimator_->get_depth(empty_frame, test_bbox);
+  EXPECT_GT(empty_depth, 0.0f);  // Should return default depth
   
-  ASSERT_GT(default_depth, 0.0f);
-  ASSERT_LT(default_depth, 10.0f);
-  ASSERT_GE(default_depth, min_depth);
-  ASSERT_LE(default_depth, max_depth);
-  
-  // Test depth calculations
-  cv::Mat test_frame(200, 300, CV_8UC3, cv::Scalar(100, 100, 100));
-  cv::Rect test_bbox(50, 50, 100, 100);
-  
-  // Calculate center point
-  cv::Point2f center(test_bbox.x + test_bbox.width / 2.0f, test_bbox.y + test_bbox.height / 2.0f);
-  ASSERT_GE(center.x, 0.0f);
-  ASSERT_LT(center.x, test_frame.cols);
-  ASSERT_GE(center.y, 0.0f);
-  ASSERT_LT(center.y, test_frame.rows);
-  
-  // Test absolute value handling
-  float negative_depth = -2.5f;
-  float abs_depth = std::abs(negative_depth);
-  ASSERT_EQ(abs_depth, 2.5f);
-  
-  // Test frame ID validation
-  int frame_id = 42;
-  ASSERT_GE(frame_id, 0);
+  // Test with out-of-bounds bbox (should be handled gracefully)
+  cv::Rect oob_bbox(700, 500, 100, 100);
+  float oob_depth = depth_estimator_->get_depth(test_frame, oob_bbox);
+  EXPECT_GT(oob_depth, 0.0f);  // Should return default depth
 }
