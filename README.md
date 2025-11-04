@@ -82,9 +82,6 @@ The system follows a **modular, interface-based design** using dependency inject
 
 **Modularity**: Components are independent and can be replaced individually (e.g., swap monocular depth for stereo vision).
 
-For detailed UML diagrams, see the [UML Diagrams](#uml-diagrams) section below.
-
-
 
 ---
 
@@ -411,6 +408,7 @@ We chose the Apache 2.0 License for this project because it provides the perfect
 - **Project Videos**: 
   - [Phase-0 Demo](https://youtu.be/bDlo0ityvEo)
   - [Phase-1 Demo](https://youtu.be/hidSe_sSeDY)
+  - [Phase-2 Final Video](https://youtu.be/Hmml-hkE0_8)
 - **Documentation**:
   - [Phase 0 Proposal](docs/Midterm_Phase0_Group3_doc.pdf)
   - [Quad Chart](docs/ENPM700_Mid_Term_Phase0_Group3_Quad_Chart.pdf)
@@ -420,4 +418,3 @@ We chose the Apache 2.0 License for this project because it provides the perfect
 
 ---
 
-**Built with ❤️ for autonomous robotics**
