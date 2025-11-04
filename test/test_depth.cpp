@@ -175,7 +175,7 @@ TEST(MLDepthEstimator, NormalizeDepthEdgeCases) {
   cv::Mat norm_normal = MLDepthEstimator::normalizeDepth(normal);
   EXPECT_EQ(norm_normal.type(), CV_8U);
   
-  cv::Mat negative = (cv::Mat_<float>(3, 3) 
+  cv::Mat negative = (cv::Mat_<float>(3, 3) <<
     -10.f, -5.f, 0.f,
     5.f, 10.f, 15.f,
     20.f, 25.f, 30.f);
