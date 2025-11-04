@@ -189,6 +189,7 @@ if(WANT_COVERAGE)
     # EXECUTABLE ctest     # what to run insdie the build directory?
     EXCLUDE
       "app/main.cpp"     # Unit test does not run app, so don't analyze it
+      "libs/onnx_network/onnx_network.cpp" # Don't analyze ONNX wrapper code
       "*gtest*"          # Don't analyze googleTest code
       "/usr/include/*"   # Don't analyze system headers
     )
