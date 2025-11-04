@@ -4,7 +4,7 @@ add_executable(run_tests
   test_detector_tracker.cpp
   test_preprocessor.cpp
   test_transformer.cpp
-)
+  )
 
 # Link libraries
 target_link_libraries(run_tests PRIVATE
