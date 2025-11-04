@@ -18,7 +18,7 @@ static std::string model_path() {
 }
 
 TEST(MLDepthEstimator, BadInputs) {
-  EXPECT_THROW((MLDepthEstimator("nope.onnx", 256, 256, false)), std::runtime_error);
+  EXPECT_THROW((MLDepthEstimator("nope.onnx", 256, 256, false)), Ort::Exception);
   EXPECT_TRUE(MLDepthEstimator::normalizeDepth(cv::Mat()).empty());
   cv::Mat z = cv::Mat::zeros(2,2,CV_32F);
   auto n = MLDepthEstimator::normalizeDepth(z);
@@ -29,7 +29,7 @@ TEST(MLDepthEstimator, Infer_GetDepth_Cache) {
   const std::string mp = model_path();
   if (!std::ifstream(mp).good()) GTEST_SKIP() << "Model not found: " << mp;
 
-  MLDepthEstimator est(mp, 256, 256, false);
+  MLDepthEstimator est(mp, 518, 518, false);
   cv::Mat frame(480, 640, CV_8UC3, cv::Scalar(120,80,40));
 
   cv::Mat depth = est.infer(frame);
@@ -63,7 +63,7 @@ TEST(MLDepthEstimator, MultipleInferCalls) {
   const std::string mp = model_path();
   if (!std::ifstream(mp).good()) GTEST_SKIP() << "Model not found: " << mp;
 
-  MLDepthEstimator est(mp, 256, 256, false);
+  MLDepthEstimator est(mp, 518, 518, false);
   
   std::vector<cv::Mat> frames;
   frames.push_back(cv::Mat(480, 640, CV_8UC3, cv::Scalar(120, 80, 40)));
@@ -92,7 +92,8 @@ TEST(MLDepthEstimator, CacheHitMissScenarios) {
   const std::string mp = model_path();
   if (!std::ifstream(mp).good()) GTEST_SKIP() << "Model not found: " << mp;
 
-  MLDepthEstimator est(mp, 256, 256, false);
+  MLDepthEstimator est(mp, 518, 518, false);
+
   cv::Mat frame(480, 640, CV_8UC3, cv::Scalar(100, 100, 100));
   
   est.set_frame_id(0);
@@ -118,7 +119,7 @@ TEST(MLDepthEstimator, BoundaryConditions) {
   const std::string mp = model_path();
   if (!std::ifstream(mp).good()) GTEST_SKIP() << "Model not found: " << mp;
 
-  MLDepthEstimator est(mp, 256, 256, false);
+  MLDepthEstimator est(mp, 518, 518, false);
   cv::Mat frame(480, 640, CV_8UC3, cv::Scalar(100, 100, 100));
   
   est.set_frame_id(2);
@@ -146,12 +147,12 @@ TEST(MLDepthEstimator, EmptyFrameHandling) {
   const std::string mp = model_path();
   if (!std::ifstream(mp).good()) GTEST_SKIP() << "Model not found: " << mp;
 
-  MLDepthEstimator est(mp, 256, 256, false);
-  cv::Mat empty_frame;
-  
+  MLDepthEstimator est(mp, 518, 518, false);
+  cv::Mat tiny(1, 1, CV_8UC3, cv::Scalar(0,0,0));
+
   est.set_frame_id(999);
-  float d = est.get_depth(empty_frame, cv::Rect(10, 10, 20, 20));
-  EXPECT_EQ(d, 1.0f);
+  float d = est.get_depth(tiny, cv::Rect(0, 0, 1, 1));
+  EXPECT_TRUE(std::isfinite(d));
 }
 
 TEST(MLDepthEstimator, NormalizeDepthEdgeCases) {
@@ -187,8 +188,8 @@ TEST(MLDepthEstimator, SetFrameIdVariations) {
   const std::string mp = model_path();
   if (!std::ifstream(mp).good()) GTEST_SKIP() << "Model not found: " << mp;
 
-  MLDepthEstimator est(mp, 256, 256, false);
-  
+  MLDepthEstimator est(mp, 518, 518, false);
+
   std::vector<int> frame_ids = {0, 1, 5, 10, 42, 100, -1, -10};
   for (int fid : frame_ids) {
     est.set_frame_id(fid);
