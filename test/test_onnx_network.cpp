@@ -9,7 +9,7 @@
 #include <opencv2/dnn.hpp>
 #include <fstream>
 #include <string>
-#include "onnx_network/onnx_network.hpp"
+#include "onnx_network.hpp"
 
 TEST(OnnxNetworkTest, ConstructorErrorHandling) {
   EXPECT_THROW(perception::OnnxNetwork(""), std::runtime_error);
